@@ -1,3 +1,6 @@
 app:
   port: 8082
-finance-url: 0.0.0.0:8080
+finance-url: 52.77.180.98:8080
+
+# Dev
+# finance-url: 0.0.0.0:8080
