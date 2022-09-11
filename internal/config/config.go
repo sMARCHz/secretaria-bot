@@ -8,8 +8,9 @@ import (
 )
 
 type Configuration struct {
-	App  AppConfiguration
-	Line LineMessageConfiguration
+	App               AppConfiguration
+	Line              LineMessageConfiguration
+	FinanceServiceURL string `mapstructure:"finance-url"`
 }
 
 type AppConfiguration struct {

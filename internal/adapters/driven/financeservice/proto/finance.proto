@@ -1,0 +1,103 @@
+syntax = "proto3";
+option go_package = "./pb";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service FinanceService {
+    rpc Withdraw(TransactionRequest) returns (TransactionResponse){}
+    rpc Deposit(TransactionRequest) returns (TransactionResponse){}
+    rpc Transfer(TransferRequest) returns (TransferResponse){}
+    rpc GetBalance(google.protobuf.Empty) returns (GetBalanceResponse){}
+    rpc GetOverviewStatement(OverviewStatementRequest) returns (OverviewStatementResponse){}
+    rpc GetOverviewMonthlyStatement(google.protobuf.Empty) returns (OverviewStatementResponse){}
+    rpc GetOverviewAnnualStatement(google.protobuf.Empty) returns (OverviewStatementResponse){}
+}
+
+// Transaction
+message TransactionRequest {
+    string account_name = 1;
+    double amount = 2;
+    string category = 3;
+    string description = 4;
+}
+
+message TransactionResponse {
+    int32 status = 1;
+    string error = 2;
+    string account_name = 3;
+    double balance = 4;
+}
+
+// Transfer
+message TransferRequest {
+    string from_account_name = 1;
+    string to_account_name = 2;
+    double amount = 3;
+    string description = 4;
+}
+
+message TransferResponse {
+    int32 status = 1;
+    string error = 2;
+    string from_account_name = 3;
+    double balance = 4;
+}
+
+// Balance
+message GetBalanceResponse {
+    int32 status = 1;
+    string error = 2;
+    repeated AccountBalance accounts = 3;
+}
+
+message AccountBalance {
+    string account_name = 1;
+    double balance = 2;
+}
+
+// Overview Statement
+message OverviewStatementRequest {
+    google.protobuf.Timestamp from = 1;
+    google.protobuf.Timestamp to = 2;
+}
+
+message OverviewStatementResponse {
+    int32 status = 1;
+    string error = 2;
+    OverviewStatementSection revenue = 3;
+    OverviewStatementSection expense = 4;
+    double profit = 5;
+}
+
+message OverviewStatementSection {
+    double total = 1;
+    repeated CategorizedEntry entries = 2;
+}
+
+message CategorizedEntry {
+    string category = 1;
+    double amount = 2;
+}
+
+// Detailed Statement
+message DetailedStatementResponse {
+    int32 status = 1;
+    string error = 2;
+    DetailedStatementSection revenue = 3;
+    DetailedStatementSection expense = 4;
+    double profit = 5;
+}
+
+message DetailedStatementSection {
+    double total = 1;
+    repeated Entry entries = 2;
+}
+
+message Entry {
+    google.protobuf.Timestamp timestamp = 1;
+    string accountName = 2;
+    string category = 3;
+    double amount = 4;
+    string description = 5;
+}

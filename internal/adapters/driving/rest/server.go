@@ -2,6 +2,7 @@ package rest
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os/signal"
@@ -9,13 +10,15 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/driven/financeservice"
 	"github.com/sMARCHz/go-secretaria-bot/internal/config"
+	"github.com/sMARCHz/go-secretaria-bot/internal/core/dto"
+	"github.com/sMARCHz/go-secretaria-bot/internal/core/services"
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
 
 func Start(config config.Configuration, logger logger.Logger) {
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT)
-
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%v", config.App.Port),
 		Handler: buildHandler(config, logger),
@@ -43,14 +46,33 @@ func Start(config config.Configuration, logger logger.Logger) {
 
 func buildHandler(config config.Configuration, logger logger.Logger) *gin.Engine {
 	router := gin.Default()
+	financeClient := financeservice.NewFinanceServiceClient(config.FinanceServiceURL, logger)
+	h := BotHandler{
+		service: services.NewBotService(financeClient, config, logger),
+		config:  config,
+		logger:  logger,
+	}
 
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "UP"})
 	})
 
-	router.GET("/line", func(ctx *gin.Context) {
-		handleLineMessage(ctx, config.Line, logger)
+	router.POST("/line", func(ctx *gin.Context) {
+		h.handleLineMessage(ctx)
 	})
 
+	router.POST("/test/line", func(ctx *gin.Context) {
+		s := services.NewBotService(financeClient, config, logger)
+		var msg dto.TextMessageRequest
+		if err := ctx.BindJSON(&msg); err != nil {
+			logger.Error("cannot bind json: ", err)
+		}
+		res, err := s.HandleTextMessage(msg.Message)
+		if err != nil {
+			ctx.AbortWithError(err.StatusCode, errors.New(err.Message))
+		} else {
+			ctx.JSON(http.StatusOK, res)
+		}
+	})
 	return router
 }
