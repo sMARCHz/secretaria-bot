@@ -107,6 +107,8 @@ func (b *botService) HandleTextMessage(msg string) (*dto.TextMessageResponse, *e
 		for _, v := range res.Expense.Entries {
 			sb.WriteString(fmt.Sprintf("%v = ฿%v\n", v.Category, v.Amount))
 		}
+		sb.WriteString("\n")
+		sb.WriteString(fmt.Sprintf("Profit: ฿%v", res.Profit))
 		replyMsg = sb.String()
 
 	default:
