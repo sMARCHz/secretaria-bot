@@ -84,11 +84,11 @@ func (b *botService) HandleTextMessage(msg string) (*dto.TextMessageResponse, *e
 		} else {
 			from, err := time.Parse("2006-01-02", msgArr[1])
 			if err != nil {
-				return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck the syntax and from_date")
+				return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck the from_date, <statement> <from_date: 2022-01-01> <to_date: 2022-01-01>")
 			}
 			to, err := time.Parse("2006-01-02", msgArr[2])
 			if err != nil {
-				return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck the syntax and to_date")
+				return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck the to_date, <statement> <from_date: 2022-01-01> <to_date: 2022-01-01>")
 			}
 			res, appErr = b.financeService.GetOverviewStatement(from, to)
 		}
