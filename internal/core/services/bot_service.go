@@ -75,7 +75,7 @@ func (b *botService) HandleTextMessage(msg string) (*dto.TextMessageResponse, *e
 		var res *dto.GetOverviewStatementResponse
 		var appErr *errors.AppError
 		statementType := "Income"
-		if msgArr[1] == "m" {
+		if len(msgArr) == 1 || msgArr[1] == "m" {
 			statementType = "Monthly"
 			res, appErr = b.financeService.GetOverviewMonthlyStatement()
 		} else if msgArr[1] == "a" {
