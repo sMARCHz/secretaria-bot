@@ -2,7 +2,7 @@ build:
 	docker build -t go-secretaria-bot_app .
 
 run:
-	docker run --name go-secretaria-bot --env-file secret.env -v go-secretaria-bot_log:/app/logs -p 8082:8082 -d go-secretaria-bot_app
+	docker run --name go-secretaria-bot --env-file secret.env -v go-secretaria-bot_log:/app/logs -p 80:8082 -d go-secretaria-bot_app
 
 start:
 	docker start go-secretaria-bot

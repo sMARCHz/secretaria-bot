@@ -26,8 +26,10 @@ func (b *BotHandler) handleLineMessage(ctx *gin.Context) {
 	events, err := bot.ParseRequest(ctx.Request)
 	if err != nil {
 		if err == linebot.ErrInvalidSignature {
+			b.logger.Error("Cannot parse line request: ", err)
 			ctx.AbortWithError(http.StatusBadRequest, err)
 		} else {
+			b.logger.Error("Cannot parse line request: ", err)
 			ctx.AbortWithError(http.StatusInternalServerError, err)
 		}
 		return
@@ -44,7 +46,7 @@ func (b *BotHandler) handleLineMessage(ctx *gin.Context) {
 					replyMsg = res.ReplyMessage
 				}
 				if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMsg)).Do(); err != nil {
-					b.logger.Error(err)
+					b.logger.Error("Cannot reply message: ", err)
 				}
 			}
 		}
