@@ -40,6 +40,7 @@ func (f *financeServiceClient) Withdraw(msg []string) (*dto.TransactionResponse,
 	}
 	res, err := f.client.Withdraw(context.Background(), req)
 	if err != nil {
+		f.logger.Error("cannot withdraw money: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	return &dto.TransactionResponse{
@@ -55,6 +56,7 @@ func (f *financeServiceClient) Deposit(msg []string) (*dto.TransactionResponse, 
 	}
 	res, err := f.client.Deposit(context.Background(), req)
 	if err != nil {
+		f.logger.Error("cannot deposit money: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	return &dto.TransactionResponse{
@@ -70,6 +72,7 @@ func (f *financeServiceClient) Transfer(msg []string) (*dto.TransferResponse, *e
 	}
 	res, err := f.client.Transfer(context.Background(), req)
 	if err != nil {
+		f.logger.Error("cannot transfer money: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	return &dto.TransferResponse{
@@ -81,6 +84,7 @@ func (f *financeServiceClient) Transfer(msg []string) (*dto.TransferResponse, *e
 func (f *financeServiceClient) GetBalance() (*dto.GetBalanceResponse, *errors.AppError) {
 	res, err := f.client.GetBalance(context.Background(), &emptypb.Empty{})
 	if err != nil {
+		f.logger.Error("cannot get balance: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	accounts := make([]dto.AccountBalance, len(res.Accounts))
@@ -99,6 +103,7 @@ func (f *financeServiceClient) GetOverviewStatement(from time.Time, to time.Time
 	}
 	res, err := f.client.GetOverviewStatement(context.Background(), req)
 	if err != nil {
+		f.logger.Error("cannot get overview statement: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	return f.toGetOverviewStatementResponseDto(res), nil
@@ -107,6 +112,7 @@ func (f *financeServiceClient) GetOverviewStatement(from time.Time, to time.Time
 func (f *financeServiceClient) GetOverviewMonthlyStatement() (*dto.GetOverviewStatementResponse, *errors.AppError) {
 	res, err := f.client.GetOverviewMonthlyStatement(context.Background(), &emptypb.Empty{})
 	if err != nil {
+		f.logger.Error("cannot get monthly overview statement: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	return f.toGetOverviewStatementResponseDto(res), nil
@@ -115,6 +121,7 @@ func (f *financeServiceClient) GetOverviewMonthlyStatement() (*dto.GetOverviewSt
 func (f *financeServiceClient) GetOverviewAnnualStatement() (*dto.GetOverviewStatementResponse, *errors.AppError) {
 	res, err := f.client.GetOverviewAnnualStatement(context.Background(), &emptypb.Empty{})
 	if err != nil {
+		f.logger.Error("cannot get annual overview statement: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	return f.toGetOverviewStatementResponseDto(res), nil
