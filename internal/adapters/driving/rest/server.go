@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/driven/financeservice"
 	"github.com/sMARCHz/go-secretaria-bot/internal/config"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/dto"
@@ -47,10 +48,16 @@ func Start(config config.Configuration, logger logger.Logger) {
 func buildHandler(config config.Configuration, logger logger.Logger) *gin.Engine {
 	router := gin.Default()
 	financeClient := financeservice.NewFinanceServiceClient(config.FinanceServiceURL, logger)
-	h := BotHandler{
+	lbot, err := linebot.New(config.Line.ChannelSecret, config.Line.ChannelToken)
+	if err != nil {
+		logger.Error("Cannot create new linebot: ", err)
+
+	}
+	botHandler := BotHandler{
 		service: services.NewBotService(financeClient, config, logger),
 		config:  config,
 		logger:  logger,
+		linebot: lbot,
 	}
 
 	router.GET("/", func(ctx *gin.Context) {
@@ -58,21 +65,22 @@ func buildHandler(config config.Configuration, logger logger.Logger) *gin.Engine
 	})
 
 	router.POST("/line", func(ctx *gin.Context) {
-		h.handleLineMessage(ctx)
+		botHandler.handleLineMessage(ctx)
 	})
 
 	router.POST("/test/line", func(ctx *gin.Context) {
-		s := services.NewBotService(financeClient, config, logger)
+		botService := services.NewBotService(financeClient, config, logger)
 		var msg dto.TextMessageRequest
 		if err := ctx.BindJSON(&msg); err != nil {
-			logger.Error("cannot bind json: ", err)
+			logger.Error("Cannot bind json: ", err)
 		}
-		res, err := s.HandleTextMessage(msg.Message)
+		res, err := botService.HandleTextMessage(msg.Message)
 		if err != nil {
 			ctx.AbortWithError(err.StatusCode, errors.New(err.Message))
 		} else {
 			ctx.JSON(http.StatusOK, res)
 		}
 	})
+
 	return router
 }

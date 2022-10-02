@@ -9,7 +9,7 @@ import (
 
 type Configuration struct {
 	App               AppConfiguration
-	Line              LineMessageConfiguration
+	Line              LineConfiguration
 	FinanceServiceURL string `mapstructure:"finance-url"`
 }
 
@@ -17,7 +17,8 @@ type AppConfiguration struct {
 	Port string
 }
 
-type LineMessageConfiguration struct {
+type LineConfiguration struct {
+	UserID        string
 	ChannelSecret string
 	ChannelToken  string
 }
