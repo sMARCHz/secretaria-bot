@@ -10,14 +10,18 @@ import (
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
 
-type BotHandler struct {
+type Handler struct {
 	service services.BotService
 	config  config.Configuration
-	linebot *linebot.Client
 }
 
-func (b *BotHandler) handleLineMessage(ctx *gin.Context) {
-	events, err := b.linebot.ParseRequest(ctx.Request)
+func (b *Handler) handleLineMessage(ctx *gin.Context) {
+	line, err := linebot.New(b.config.Line.ChannelSecret, b.config.Line.ChannelToken)
+	if err != nil {
+		logger.Error("Cannot create new linebot: ", err)
+	}
+
+	events, err := line.ParseRequest(ctx.Request)
 	if err != nil {
 		if err == linebot.ErrInvalidSignature {
 			logger.Error("Cannot parse line request: ", err)
@@ -30,7 +34,7 @@ func (b *BotHandler) handleLineMessage(ctx *gin.Context) {
 	}
 	for _, event := range events {
 		if event.Source.UserID != b.config.Line.UserID {
-			b.replyMessage(event, "Unauthorized action!")
+			replyMessage(line, event, "Unauthorized action!")
 			continue
 		}
 		if event.Type == linebot.EventTypeMessage {
@@ -43,14 +47,14 @@ func (b *BotHandler) handleLineMessage(ctx *gin.Context) {
 				} else {
 					replyMsg = res.ReplyMessage
 				}
-				b.replyMessage(event, replyMsg)
+				replyMessage(line, event, replyMsg)
 			}
 		}
 	}
 }
 
-func (b *BotHandler) replyMessage(event *linebot.Event, replyMsg string) {
-	if _, err := b.linebot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMsg)).Do(); err != nil {
+func replyMessage(line *linebot.Client, event *linebot.Event, replyMsg string) {
+	if _, err := line.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMsg)).Do(); err != nil {
 		logger.Error("Cannot reply message: ", err)
 	}
 }

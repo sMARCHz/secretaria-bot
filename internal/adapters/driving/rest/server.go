@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/driven/financeservice"
 	"github.com/sMARCHz/go-secretaria-bot/internal/config"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/dto"
@@ -46,16 +45,13 @@ func Start(config config.Configuration) {
 
 func buildHandler(config config.Configuration) *gin.Engine {
 	router := gin.Default()
-	financeClient := financeservice.NewFinanceServiceClient(config.FinanceServiceURL)
-	lbot, err := linebot.New(config.Line.ChannelSecret, config.Line.ChannelToken)
-	if err != nil {
-		logger.Error("Cannot create new linebot: ", err)
-
-	}
-	botHandler := BotHandler{
-		service: services.NewBotService(financeClient, config),
+	service := services.NewBotService(
+		financeservice.NewFinanceServiceClient(config.FinanceServiceURL),
+		config,
+	)
+	lineHandler := Handler{
+		service: service,
 		config:  config,
-		linebot: lbot,
 	}
 
 	router.GET("/", func(ctx *gin.Context) {
@@ -63,16 +59,22 @@ func buildHandler(config config.Configuration) *gin.Engine {
 	})
 
 	router.POST("/line", func(ctx *gin.Context) {
-		botHandler.handleLineMessage(ctx)
+		lineHandler.handleLineMessage(ctx)
 	})
 
-	router.POST("/test/line", func(ctx *gin.Context) {
-		botService := services.NewBotService(financeClient, config)
+	router.POST("/__test", func(ctx *gin.Context) {
+		username, password, auth := ctx.Request.BasicAuth()
+		if !auth || username != "sMARCHz's test" {
+			logger.Warnf("someone tried to breach (username: %s, password: %s)", username, password)
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
 		var msg dto.TextMessageRequest
 		if err := ctx.BindJSON(&msg); err != nil {
-			logger.Error("Cannot bind json: ", err)
+			logger.Error("cannot bind json: ", err)
 		}
-		res, err := botService.HandleTextMessage(msg.Message)
+		res, err := service.HandleTextMessage(msg.Message)
 		if err != nil {
 			ctx.AbortWithError(err.StatusCode, errors.New(err.Message))
 		} else {
