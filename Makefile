@@ -2,7 +2,7 @@ build:
 	docker build -t secretaria-bot .
 
 run:
-	docker run --name secretaria-bot --env-file secret.env -v secretaria-bot_log:/app/logs -p 80:8082 -d secretaria-bot
+	docker run --name secretaria-bot --env-file secret.env -v secretaria-bot_log:/app/logs -p 8082:8082 -d secretaria-bot
 
 start:
 	docker start secretaria-bot
