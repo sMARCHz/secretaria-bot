@@ -19,13 +19,11 @@ import (
 )
 
 func Start(config config.Configuration) {
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
+	// Start server
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%v", config.App.Port),
 		Handler: buildHandler(config),
 	}
-
-	// Starting server
 	go func() {
 		logger.Infof("Listening and serving HTTP on :%v", config.App.Port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -33,7 +31,8 @@ func Start(config config.Configuration) {
 		}
 	}()
 
-	// Shutting down
+	// Shutdown
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 	<-ctx.Done()
 	cancel()
 
