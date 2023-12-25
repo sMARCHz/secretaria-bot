@@ -1,10 +1,17 @@
 package errors
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 type AppError struct {
 	StatusCode int    `json:"-"`
 	Message    string `json:"message"`
+}
+
+func (a *AppError) Error() string {
+	return fmt.Sprintf("status code: %v, message: %s", a.StatusCode, a.Message)
 }
 
 func BadRequestError(msg string) *AppError {

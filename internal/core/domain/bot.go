@@ -1,4 +1,4 @@
-package dto
+package domain
 
 type TextMessageRequest struct {
 	Message string `json:"message"`

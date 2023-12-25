@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sMARCHz/go-secretaria-bot/internal/config"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/dto"
+	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/services"
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
@@ -29,7 +29,7 @@ func (t *TestHandler) Test(ctx *gin.Context) {
 		return
 	}
 
-	var msg dto.TextMessageRequest
+	var msg domain.TextMessageRequest
 	if err := ctx.BindJSON(&msg); err != nil {
 		logger.Error("cannot bind json: ", err)
 	}
