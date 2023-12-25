@@ -18,11 +18,11 @@ import (
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
 
-func Start(config config.Configuration, logger logger.Logger) {
+func Start(config config.Configuration) {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%v", config.App.Port),
-		Handler: buildHandler(config, logger),
+		Handler: buildHandler(config),
 	}
 
 	// Start server
@@ -45,18 +45,17 @@ func Start(config config.Configuration, logger logger.Logger) {
 	logger.Info("Gracefully shutting down...")
 }
 
-func buildHandler(config config.Configuration, logger logger.Logger) *gin.Engine {
+func buildHandler(config config.Configuration) *gin.Engine {
 	router := gin.Default()
-	financeClient := financeservice.NewFinanceServiceClient(config.FinanceServiceURL, logger)
+	financeClient := financeservice.NewFinanceServiceClient(config.FinanceServiceURL)
 	lbot, err := linebot.New(config.Line.ChannelSecret, config.Line.ChannelToken)
 	if err != nil {
 		logger.Error("Cannot create new linebot: ", err)
 
 	}
 	botHandler := BotHandler{
-		service: services.NewBotService(financeClient, config, logger),
+		service: services.NewBotService(financeClient, config),
 		config:  config,
-		logger:  logger,
 		linebot: lbot,
 	}
 
@@ -69,7 +68,7 @@ func buildHandler(config config.Configuration, logger logger.Logger) *gin.Engine
 	})
 
 	router.POST("/test/line", func(ctx *gin.Context) {
-		botService := services.NewBotService(financeClient, config, logger)
+		botService := services.NewBotService(financeClient, config)
 		var msg dto.TextMessageRequest
 		if err := ctx.BindJSON(&msg); err != nil {
 			logger.Error("Cannot bind json: ", err)

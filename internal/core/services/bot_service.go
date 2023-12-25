@@ -9,7 +9,6 @@ import (
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/client"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/dto"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
-	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
 
 type BotService interface {
@@ -19,14 +18,12 @@ type BotService interface {
 type botService struct {
 	financeService client.FinanceServiceClient
 	config         config.Configuration
-	logger         logger.Logger
 }
 
-func NewBotService(financeService client.FinanceServiceClient, config config.Configuration, logger logger.Logger) BotService {
+func NewBotService(financeService client.FinanceServiceClient, config config.Configuration) BotService {
 	return &botService{
 		financeService: financeService,
 		config:         config,
-		logger:         logger,
 	}
 }
 

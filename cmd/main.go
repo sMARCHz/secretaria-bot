@@ -7,8 +7,10 @@ import (
 )
 
 func main() {
-	logger := logger.NewProductionLogger()
-	config := config.LoadConfig(".", logger)
+	sync := logger.InitProductionLogger()
+	defer sync()
 
-	rest.Start(config, logger)
+	config := config.LoadConfig()
+
+	rest.Start(config)
 }

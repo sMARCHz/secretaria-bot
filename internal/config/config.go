@@ -23,8 +23,8 @@ type LineConfiguration struct {
 	ChannelToken  string
 }
 
-func LoadConfig(path string, logger logger.Logger) Configuration {
-	viper.AddConfigPath(path)
+func LoadConfig() Configuration {
+	viper.AddConfigPath(".")
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 
