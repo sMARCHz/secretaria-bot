@@ -22,7 +22,7 @@ func Start() {
 	cfg := config.Get()
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%v", cfg.App.Port),
-		Handler: buildHandler(cfg),
+		Handler: buildHandler(),
 	}
 	go func() {
 		logger.Infof("Listening and serving HTTP on :%v", cfg.App.Port)
@@ -44,10 +44,11 @@ func Start() {
 	logger.Info("Gracefully shutting down...")
 }
 
-func buildHandler(config config.Configuration) *gin.Engine {
+func buildHandler() *gin.Engine {
+	cfg := config.Get()
 	router := gin.Default()
 	service := services.NewBotService(
-		financeservice.NewFinanceServiceClient(config.FinanceServiceURL),
+		financeservice.NewFinanceServiceClient(cfg.FinanceServiceURL),
 	)
 	lineHandler := NewLineHandler(service)
 
@@ -61,7 +62,7 @@ func buildHandler(config config.Configuration) *gin.Engine {
 
 	router.POST("/__test", func(ctx *gin.Context) {
 		username, password, auth := ctx.Request.BasicAuth()
-		if !auth || username != config.App.TestUsername {
+		if !auth || username != cfg.App.TestUsername {
 			logger.Warnf("someone tried to breach (username: %s, password: %s)", username, password)
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
