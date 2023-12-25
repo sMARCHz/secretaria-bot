@@ -37,8 +37,8 @@ func Start(config config.Configuration) {
 	<-ctx.Done()
 	stop()
 
-	ctx, cancle := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancle()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
 		logger.Fatal("Server forced to shutdown: ", err)
 	}
