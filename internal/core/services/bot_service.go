@@ -106,14 +106,15 @@ func (b *botService) callBalance() (string, *errors.AppError) {
 func (b *botService) callStatement(msgArr []string) (string, *errors.AppError) {
 	var res *domain.GetOverviewStatementResponse
 	var appErr *errors.AppError
-	statementType := "Income"
+	var timeRange string
 	if len(msgArr) == 1 || msgArr[1] == "m" {
-		statementType = "Monthly"
+		timeRange = "Monthly"
 		res, appErr = b.financeService.GetOverviewMonthlyStatement()
 	} else if msgArr[1] == "a" {
-		statementType = "Annual"
+		timeRange = "Annual"
 		res, appErr = b.financeService.GetOverviewAnnualStatement()
 	} else {
+		timeRange = fmt.Sprintf("Selected range (%s:%s)", msgArr[1], msgArr[2])
 		from, err := time.Parse("2006-01-02", msgArr[1])
 		if err != nil {
 			return "", errors.BadRequestError("Invalid command's arguments.\nPlease recheck the from_date, <statement> <from_date: 2022-01-01> <to_date: 2022-01-01>")
@@ -133,7 +134,7 @@ func (b *botService) callStatement(msgArr []string) (string, *errors.AppError) {
 	}
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("%v Statement\n================\n", statementType))
+	sb.WriteString(fmt.Sprintf("%v Statement\n================\n", timeRange))
 	sb.WriteString(fmt.Sprintf("Revenue: ฿%v\n", res.Revenue.Total))
 	for _, v := range res.Revenue.Entries {
 		sb.WriteString(fmt.Sprintf("%v = ฿%v\n", v.Category, v.Amount))
