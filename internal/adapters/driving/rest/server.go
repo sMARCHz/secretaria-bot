@@ -49,14 +49,14 @@ func buildHandler(config config.Configuration) *gin.Engine {
 	service := services.NewBotService(
 		financeservice.NewFinanceServiceClient(config.FinanceServiceURL),
 	)
-	lineHandler := NewHandler(service)
+	lineHandler := NewLineHandler(service)
 
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "UP"})
 	})
 
 	router.POST("/line", func(ctx *gin.Context) {
-		lineHandler.handleLineMessage(ctx)
+		lineHandler.HandleLineMessage(ctx)
 	})
 
 	router.POST("/__test", func(ctx *gin.Context) {
@@ -71,6 +71,7 @@ func buildHandler(config config.Configuration) *gin.Engine {
 		if err := ctx.BindJSON(&msg); err != nil {
 			logger.Error("cannot bind json: ", err)
 		}
+
 		res, err := service.HandleTextMessage(msg.Message)
 		if err != nil {
 			ctx.AbortWithError(err.StatusCode, errors.New(err.Message))
