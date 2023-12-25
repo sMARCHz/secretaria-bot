@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sMARCHz/go-secretaria-bot/internal/config"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/client"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/dto"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
@@ -17,13 +16,11 @@ type BotService interface {
 
 type botService struct {
 	financeService client.FinanceServiceClient
-	config         config.Configuration
 }
 
-func NewBotService(financeService client.FinanceServiceClient, config config.Configuration) BotService {
+func NewBotService(financeService client.FinanceServiceClient) BotService {
 	return &botService{
 		financeService: financeService,
-		config:         config,
 	}
 }
 

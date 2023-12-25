@@ -17,14 +17,15 @@ import (
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
 
-func Start(config config.Configuration) {
+func Start() {
 	// Start server
+	cfg := config.Get()
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%v", config.App.Port),
-		Handler: buildHandler(config),
+		Addr:    fmt.Sprintf(":%v", cfg.App.Port),
+		Handler: buildHandler(cfg),
 	}
 	go func() {
-		logger.Infof("Listening and serving HTTP on :%v", config.App.Port)
+		logger.Infof("Listening and serving HTTP on :%v", cfg.App.Port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Fatal("cannot start server: ", err)
 		}
@@ -47,12 +48,8 @@ func buildHandler(config config.Configuration) *gin.Engine {
 	router := gin.Default()
 	service := services.NewBotService(
 		financeservice.NewFinanceServiceClient(config.FinanceServiceURL),
-		config,
 	)
-	lineHandler := Handler{
-		service: service,
-		config:  config,
-	}
+	lineHandler := NewHandler(service)
 
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "UP"})
@@ -64,7 +61,7 @@ func buildHandler(config config.Configuration) *gin.Engine {
 
 	router.POST("/__test", func(ctx *gin.Context) {
 		username, password, auth := ctx.Request.BasicAuth()
-		if !auth || username != "sMARCHz's test" {
+		if !auth || username != config.App.TestUsername {
 			logger.Warnf("someone tried to breach (username: %s, password: %s)", username, password)
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return

@@ -12,11 +12,17 @@ import (
 
 type Handler struct {
 	service services.BotService
-	config  config.Configuration
+}
+
+func NewHandler(service services.BotService) Handler {
+	return Handler{
+		service: service,
+	}
 }
 
 func (b *Handler) handleLineMessage(ctx *gin.Context) {
-	line, err := linebot.New(b.config.Line.ChannelSecret, b.config.Line.ChannelToken)
+	cfg := config.Get()
+	line, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelToken)
 	if err != nil {
 		logger.Error("cannot create new linebot: ", err)
 	}
@@ -33,7 +39,7 @@ func (b *Handler) handleLineMessage(ctx *gin.Context) {
 		return
 	}
 	for _, event := range events {
-		if event.Source.UserID != b.config.Line.UserID {
+		if event.Source.UserID != cfg.Line.UserID {
 			replyMessage(line, event, "Unauthorized action!")
 			continue
 		}
