@@ -1,8 +1,8 @@
 app:
-  port: 8082
+  port: 80
 line:
-  userID: Ub005e82b5b457efc7c18e1961a36ae4d
-finance-url: 13.229.244.121:8080
+  userid: Ub005e82b5b457efc7c18e1961a36ae4d
+finance_url: 13.229.244.121:8080
 
 # Dev
-# finance-url: 192.168.1.252:8080
+# finance_url: 192.168.1.252:8080

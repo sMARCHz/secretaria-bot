@@ -19,17 +19,15 @@ import (
 
 type financeServiceClient struct {
 	client pb.FinanceServiceClient
-	logger logger.Logger
 }
 
-func NewFinanceServiceClient(url string, logger logger.Logger) client.FinanceServiceClient {
+func NewFinanceServiceClient(url string) client.FinanceServiceClient {
 	conn, err := grpc.Dial(url, grpc.WithInsecure())
 	if err != nil {
 		logger.Fatalf("could not connect to %v:", url, err)
 	}
 	return &financeServiceClient{
 		client: pb.NewFinanceServiceClient(conn),
-		logger: logger,
 	}
 }
 
@@ -40,7 +38,7 @@ func (f *financeServiceClient) Withdraw(msg []string) (*dto.TransactionResponse,
 	}
 	res, err := f.client.Withdraw(context.Background(), req)
 	if err != nil {
-		f.logger.Error("cannot withdraw money: ", err)
+		logger.Error("cannot withdraw money: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	return &dto.TransactionResponse{
@@ -56,7 +54,7 @@ func (f *financeServiceClient) Deposit(msg []string) (*dto.TransactionResponse, 
 	}
 	res, err := f.client.Deposit(context.Background(), req)
 	if err != nil {
-		f.logger.Error("cannot deposit money: ", err)
+		logger.Error("cannot deposit money: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	return &dto.TransactionResponse{
@@ -72,7 +70,7 @@ func (f *financeServiceClient) Transfer(msg []string) (*dto.TransferResponse, *e
 	}
 	res, err := f.client.Transfer(context.Background(), req)
 	if err != nil {
-		f.logger.Error("cannot transfer money: ", err)
+		logger.Error("cannot transfer money: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	return &dto.TransferResponse{
@@ -84,7 +82,7 @@ func (f *financeServiceClient) Transfer(msg []string) (*dto.TransferResponse, *e
 func (f *financeServiceClient) GetBalance() (*dto.GetBalanceResponse, *errors.AppError) {
 	res, err := f.client.GetBalance(context.Background(), &emptypb.Empty{})
 	if err != nil {
-		f.logger.Error("cannot get balance: ", err)
+		logger.Error("cannot get balance: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	accounts := make([]dto.AccountBalance, len(res.Accounts))
@@ -103,7 +101,7 @@ func (f *financeServiceClient) GetOverviewStatement(from time.Time, to time.Time
 	}
 	res, err := f.client.GetOverviewStatement(context.Background(), req)
 	if err != nil {
-		f.logger.Error("cannot get overview statement: ", err)
+		logger.Error("cannot get overview statement: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	return f.toGetOverviewStatementResponseDto(res), nil
@@ -112,7 +110,7 @@ func (f *financeServiceClient) GetOverviewStatement(from time.Time, to time.Time
 func (f *financeServiceClient) GetOverviewMonthlyStatement() (*dto.GetOverviewStatementResponse, *errors.AppError) {
 	res, err := f.client.GetOverviewMonthlyStatement(context.Background(), &emptypb.Empty{})
 	if err != nil {
-		f.logger.Error("cannot get monthly overview statement: ", err)
+		logger.Error("cannot get monthly overview statement: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	return f.toGetOverviewStatementResponseDto(res), nil
@@ -121,7 +119,7 @@ func (f *financeServiceClient) GetOverviewMonthlyStatement() (*dto.GetOverviewSt
 func (f *financeServiceClient) GetOverviewAnnualStatement() (*dto.GetOverviewStatementResponse, *errors.AppError) {
 	res, err := f.client.GetOverviewAnnualStatement(context.Background(), &emptypb.Empty{})
 	if err != nil {
-		f.logger.Error("cannot get annual overview statement: ", err)
+		logger.Error("cannot get annual overview statement: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
 	return f.toGetOverviewStatementResponseDto(res), nil
@@ -130,7 +128,7 @@ func (f *financeServiceClient) GetOverviewAnnualStatement() (*dto.GetOverviewSta
 func (f *financeServiceClient) newTransactionRequest(msg []string) (*pb.TransactionRequest, *errors.AppError) {
 	size := len(msg)
 	if size < 3 {
-		f.logger.Error("Invalid command length")
+		logger.Error("invalid command length")
 		return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck the syntax, !p/!e <account_name> <amount><category> <description>")
 	}
 
@@ -146,13 +144,13 @@ func (f *financeServiceClient) newTransactionRequest(msg []string) (*pb.Transact
 		amountAsStr = amountAndCategory[1]
 		category = amountAndCategory[3]
 	} else {
-		f.logger.Error("invalid amount and category combination['%v']", msg[2])
+		logger.Error("invalid amount and category combination['%v']", msg[2])
 		return nil, errors.BadRequestError("Invalid amount and category combination")
 	}
 
 	amount, err := strconv.ParseFloat(amountAsStr, 64)
 	if err != nil {
-		f.logger.Error("cannot parse amount to float64: ", err)
+		logger.Error("cannot parse amount to float64: ", err)
 		return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck syntax and amount of transaction in the command")
 	}
 
@@ -173,13 +171,13 @@ func (f *financeServiceClient) newTransactionRequest(msg []string) (*pb.Transact
 func (f *financeServiceClient) newTransferRequest(msg []string) (*pb.TransferRequest, *errors.AppError) {
 	size := len(msg)
 	if size < 4 {
-		f.logger.Error("invalid command length")
+		logger.Error("invalid command length")
 		return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck the syntax, !t <transfer_from> <transfer_to> <amount> <description>")
 	}
 
 	amount, err := strconv.ParseFloat(msg[3], 64)
 	if err != nil {
-		f.logger.Error("cannot parse amount to float64: ", err)
+		logger.Error("cannot parse amount to float64: ", err)
 		return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck syntax and amount of transaction in the command")
 	}
 

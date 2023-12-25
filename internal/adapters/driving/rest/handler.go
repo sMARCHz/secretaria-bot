@@ -10,48 +10,63 @@ import (
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
 
-type BotHandler struct {
+type LineHandler struct {
 	service services.BotService
-	config  config.Configuration
-	logger  logger.Logger
-	linebot *linebot.Client
 }
 
-func (b *BotHandler) handleLineMessage(ctx *gin.Context) {
-	events, err := b.linebot.ParseRequest(ctx.Request)
+func NewLineHandler(service services.BotService) LineHandler {
+	return LineHandler{
+		service: service,
+	}
+}
+
+func (b *LineHandler) HandleLineMessage(ctx *gin.Context) {
+	cfg := config.Get()
+	line, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelToken)
 	if err != nil {
+		logger.Error("cannot create new linebot: ", err)
+	}
+
+	events, err := line.ParseRequest(ctx.Request)
+	if err != nil {
+		code := http.StatusInternalServerError
 		if err == linebot.ErrInvalidSignature {
-			b.logger.Error("Cannot parse line request: ", err)
-			ctx.AbortWithError(http.StatusBadRequest, err)
-		} else {
-			b.logger.Error("Cannot parse line request: ", err)
-			ctx.AbortWithError(http.StatusInternalServerError, err)
+			code = http.StatusBadRequest
 		}
+		logger.Error("cannot parse line request: ", err)
+		ctx.AbortWithError(code, err)
 		return
 	}
+
+	b.processEvents(line, events)
+}
+
+func (b *LineHandler) processEvents(line *linebot.Client, events []*linebot.Event) {
 	for _, event := range events {
-		if event.Source.UserID != b.config.Line.UserID {
-			b.replyMessage(event, "Unauthorized action!")
+		if !isMe(event) {
+			replyMessage(line, event, "Unauthorized action!")
 			continue
 		}
 		if event.Type == linebot.EventTypeMessage {
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-				replyMsg := ""
 				res, appErr := b.service.HandleTextMessage(message.Text)
 				if appErr != nil {
-					replyMsg = appErr.Message
-				} else {
-					replyMsg = res.ReplyMessage
+					replyMessage(line, event, appErr.Message)
+					continue
 				}
-				b.replyMessage(event, replyMsg)
+				replyMessage(line, event, res.ReplyMessage)
 			}
 		}
 	}
 }
 
-func (b *BotHandler) replyMessage(event *linebot.Event, replyMsg string) {
-	if _, err := b.linebot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMsg)).Do(); err != nil {
-		b.logger.Error("Cannot reply message: ", err)
+func replyMessage(line *linebot.Client, event *linebot.Event, replyMsg string) {
+	if _, err := line.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMsg)).Do(); err != nil {
+		logger.Error("cannot reply message: ", err)
 	}
+}
+
+func isMe(event *linebot.Event) bool {
+	return event.Source.UserID == config.Get().Line.UserID
 }

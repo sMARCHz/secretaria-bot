@@ -1,17 +1,17 @@
 build:
-	docker build -t go-secretaria-bot_app .
+	docker build -t secretaria-bot .
 
 run:
-	docker run --name go-secretaria-bot --env-file secret.env -v go-secretaria-bot_log:/app/logs -p 80:8082 -d go-secretaria-bot_app
+	docker run --name secretaria-bot --env-file secret.env -v secretaria-bot_log:/app/logs -p 80:80 -d secretaria-bot
 
 start:
-	docker start go-secretaria-bot
+	docker start secretaria-bot
 
 stop:
-	docker stop go-secretaria-bot
+	docker stop secretaria-bot
 
 rm:
-	docker rm go-secretaria-bot
+	docker rm secretaria-bot
 
 protoc:
 	protoc internal/adapters/driven/financeservice/proto/finance.proto --go_out=internal/adapters/driven/financeservice --go-grpc_out=internal/adapters/driven/financeservice
