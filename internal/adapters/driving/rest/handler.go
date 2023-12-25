@@ -18,16 +18,16 @@ type Handler struct {
 func (b *Handler) handleLineMessage(ctx *gin.Context) {
 	line, err := linebot.New(b.config.Line.ChannelSecret, b.config.Line.ChannelToken)
 	if err != nil {
-		logger.Error("Cannot create new linebot: ", err)
+		logger.Error("cannot create new linebot: ", err)
 	}
 
 	events, err := line.ParseRequest(ctx.Request)
 	if err != nil {
 		if err == linebot.ErrInvalidSignature {
-			logger.Error("Cannot parse line request: ", err)
+			logger.Error("cannot parse line request: ", err)
 			ctx.AbortWithError(http.StatusBadRequest, err)
 		} else {
-			logger.Error("Cannot parse line request: ", err)
+			logger.Error("cannot parse line request: ", err)
 			ctx.AbortWithError(http.StatusInternalServerError, err)
 		}
 		return
@@ -55,6 +55,6 @@ func (b *Handler) handleLineMessage(ctx *gin.Context) {
 
 func replyMessage(line *linebot.Client, event *linebot.Event, replyMsg string) {
 	if _, err := line.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMsg)).Do(); err != nil {
-		logger.Error("Cannot reply message: ", err)
+		logger.Error("cannot reply message: ", err)
 	}
 }

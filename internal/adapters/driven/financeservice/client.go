@@ -128,7 +128,7 @@ func (f *financeServiceClient) GetOverviewAnnualStatement() (*dto.GetOverviewSta
 func (f *financeServiceClient) newTransactionRequest(msg []string) (*pb.TransactionRequest, *errors.AppError) {
 	size := len(msg)
 	if size < 3 {
-		logger.Error("Invalid command length")
+		logger.Error("invalid command length")
 		return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck the syntax, !p/!e <account_name> <amount><category> <description>")
 	}
 

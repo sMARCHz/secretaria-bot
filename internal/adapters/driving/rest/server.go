@@ -26,7 +26,7 @@ func Start(config config.Configuration) {
 	go func() {
 		logger.Infof("Listening and serving HTTP on :%v", config.App.Port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Fatal("Cannot start server: ", err)
+			logger.Fatal("cannot start server: ", err)
 		}
 	}()
 
@@ -38,7 +38,7 @@ func Start(config config.Configuration) {
 	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
-		logger.Fatal("Server forced to shutdown: ", err)
+		logger.Fatal("server forced to shutdown: ", err)
 	}
 	logger.Info("Gracefully shutting down...")
 }
