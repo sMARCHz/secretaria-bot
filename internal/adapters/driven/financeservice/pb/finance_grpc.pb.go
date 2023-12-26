@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.2
-// source: internal/adapters/driven/financeservice/proto/finance.proto
+// source: proto/finance.proto
 
 package pb
 
@@ -318,5 +318,5 @@ var FinanceService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/adapters/driven/financeservice/proto/finance.proto",
+	Metadata: "proto/finance.proto",
 }
