@@ -1,18 +1,16 @@
 package client
 
 import (
-	"time"
-
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/dto"
+	domain "github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
 )
 
 type FinanceServiceClient interface {
-	Withdraw([]string) (*dto.TransactionResponse, *errors.AppError)
-	Deposit([]string) (*dto.TransactionResponse, *errors.AppError)
-	Transfer([]string) (*dto.TransferResponse, *errors.AppError)
-	GetBalance() (*dto.GetBalanceResponse, *errors.AppError)
-	GetOverviewStatement(time.Time, time.Time) (*dto.GetOverviewStatementResponse, *errors.AppError)
-	GetOverviewMonthlyStatement() (*dto.GetOverviewStatementResponse, *errors.AppError)
-	GetOverviewAnnualStatement() (*dto.GetOverviewStatementResponse, *errors.AppError)
+	Withdraw(*domain.TransactionRequest) (*domain.TransactionResponse, *errors.AppError)
+	Deposit(*domain.TransactionRequest) (*domain.TransactionResponse, *errors.AppError)
+	Transfer(*domain.TransferRequest) (*domain.TransferResponse, *errors.AppError)
+	GetBalance() (*domain.GetBalanceResponse, *errors.AppError)
+	GetOverviewStatement(*domain.GetOverviewStatementRequest) (*domain.GetOverviewStatementResponse, *errors.AppError)
+	GetOverviewMonthlyStatement() (*domain.GetOverviewStatementResponse, *errors.AppError)
+	GetOverviewAnnualStatement() (*domain.GetOverviewStatementResponse, *errors.AppError)
 }

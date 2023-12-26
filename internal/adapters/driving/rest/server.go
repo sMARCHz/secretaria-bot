@@ -2,18 +2,13 @@ package rest
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/driven/financeservice"
 	"github.com/sMARCHz/go-secretaria-bot/internal/config"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/dto"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/services"
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
 
@@ -22,7 +17,7 @@ func Start() {
 	cfg := config.Get()
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%v", cfg.App.Port),
-		Handler: buildHandler(),
+		Handler: newRouter(),
 	}
 	go func() {
 		logger.Infof("Listening and serving HTTP on :%v", cfg.App.Port)
@@ -42,44 +37,4 @@ func Start() {
 		logger.Fatal("server forced to shutdown: ", err)
 	}
 	logger.Info("Gracefully shutting down...")
-}
-
-func buildHandler() *gin.Engine {
-	cfg := config.Get()
-	router := gin.Default()
-	service := services.NewBotService(
-		financeservice.NewFinanceServiceClient(cfg.FinanceServiceURL),
-	)
-	lineHandler := NewLineHandler(service)
-
-	router.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{"status": "UP"})
-	})
-
-	router.POST("/line", func(ctx *gin.Context) {
-		lineHandler.HandleLineMessage(ctx)
-	})
-
-	router.POST("/__test", func(ctx *gin.Context) {
-		username, password, auth := ctx.Request.BasicAuth()
-		if !auth || username != cfg.App.TestUsername {
-			logger.Warnf("someone tried to breach (username: %s, password: %s)", username, password)
-			ctx.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		var msg dto.TextMessageRequest
-		if err := ctx.BindJSON(&msg); err != nil {
-			logger.Error("cannot bind json: ", err)
-		}
-
-		res, err := service.HandleTextMessage(msg.Message)
-		if err != nil {
-			ctx.AbortWithError(err.StatusCode, errors.New(err.Message))
-		} else {
-			ctx.JSON(http.StatusOK, res)
-		}
-	})
-
-	return router
 }

@@ -2,19 +2,14 @@ package financeservice
 
 import (
 	"context"
-	"regexp"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/driven/financeservice/pb"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/client"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/dto"
+	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type financeServiceClient struct {
@@ -31,190 +26,102 @@ func NewFinanceServiceClient(url string) client.FinanceServiceClient {
 	}
 }
 
-func (f *financeServiceClient) Withdraw(msg []string) (*dto.TransactionResponse, *errors.AppError) {
-	req, appErr := f.newTransactionRequest(msg)
-	if appErr != nil {
-		return nil, appErr
-	}
-	res, err := f.client.Withdraw(context.Background(), req)
+func (f *financeServiceClient) Withdraw(req *domain.TransactionRequest) (*domain.TransactionResponse, *errors.AppError) {
+	res, err := f.client.Withdraw(context.Background(), req.ToProto())
 	if err != nil {
 		logger.Error("cannot withdraw money: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
-	return &dto.TransactionResponse{
-		AccountName: res.AccountName,
-		Balance:     res.Balance,
+	return &domain.TransactionResponse{
+		Account: res.AccountName,
+		Balance: res.Balance,
 	}, nil
 }
 
-func (f *financeServiceClient) Deposit(msg []string) (*dto.TransactionResponse, *errors.AppError) {
-	req, appErr := f.newTransactionRequest(msg)
-	if appErr != nil {
-		return nil, appErr
-	}
-	res, err := f.client.Deposit(context.Background(), req)
+func (f *financeServiceClient) Deposit(req *domain.TransactionRequest) (*domain.TransactionResponse, *errors.AppError) {
+	res, err := f.client.Deposit(context.Background(), req.ToProto())
 	if err != nil {
 		logger.Error("cannot deposit money: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
-	return &dto.TransactionResponse{
-		AccountName: res.AccountName,
-		Balance:     res.Balance,
+	return &domain.TransactionResponse{
+		Account: res.AccountName,
+		Balance: res.Balance,
 	}, nil
 }
 
-func (f *financeServiceClient) Transfer(msg []string) (*dto.TransferResponse, *errors.AppError) {
-	req, appErr := f.newTransferRequest(msg)
-	if appErr != nil {
-		return nil, appErr
-	}
-	res, err := f.client.Transfer(context.Background(), req)
+func (f *financeServiceClient) Transfer(req *domain.TransferRequest) (*domain.TransferResponse, *errors.AppError) {
+	res, err := f.client.Transfer(context.Background(), req.ToProto())
 	if err != nil {
 		logger.Error("cannot transfer money: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
-	return &dto.TransferResponse{
-		FromAccountName: res.FromAccountName,
-		Balance:         res.Balance,
+	return &domain.TransferResponse{
+		FromAccount: res.FromAccountName,
+		Balance:     res.Balance,
 	}, nil
 }
 
-func (f *financeServiceClient) GetBalance() (*dto.GetBalanceResponse, *errors.AppError) {
+func (f *financeServiceClient) GetBalance() (*domain.GetBalanceResponse, *errors.AppError) {
 	res, err := f.client.GetBalance(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		logger.Error("cannot get balance: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
-	accounts := make([]dto.AccountBalance, len(res.Accounts))
+	accounts := make([]domain.AccountBalance, len(res.Accounts))
 	for i, v := range res.Accounts {
-		accounts[i] = dto.AccountBalance{AccountName: v.AccountName, Balance: v.Balance}
+		accounts[i] = domain.AccountBalance{Account: v.AccountName, Balance: v.Balance}
 	}
-	return &dto.GetBalanceResponse{
+	return &domain.GetBalanceResponse{
 		Accounts: accounts,
 	}, nil
 }
 
-func (f *financeServiceClient) GetOverviewStatement(from time.Time, to time.Time) (*dto.GetOverviewStatementResponse, *errors.AppError) {
-	req := &pb.OverviewStatementRequest{
-		From: timestamppb.New(from),
-		To:   timestamppb.New(to),
-	}
-	res, err := f.client.GetOverviewStatement(context.Background(), req)
+func (f *financeServiceClient) GetOverviewStatement(req *domain.GetOverviewStatementRequest) (*domain.GetOverviewStatementResponse, *errors.AppError) {
+	res, err := f.client.GetOverviewStatement(context.Background(), req.ToProto())
 	if err != nil {
 		logger.Error("cannot get overview statement: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
-	return f.toGetOverviewStatementResponseDto(res), nil
+	return f.toGetOverviewStatementResponse(res), nil
 }
 
-func (f *financeServiceClient) GetOverviewMonthlyStatement() (*dto.GetOverviewStatementResponse, *errors.AppError) {
+func (f *financeServiceClient) GetOverviewMonthlyStatement() (*domain.GetOverviewStatementResponse, *errors.AppError) {
 	res, err := f.client.GetOverviewMonthlyStatement(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		logger.Error("cannot get monthly overview statement: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
-	return f.toGetOverviewStatementResponseDto(res), nil
+	return f.toGetOverviewStatementResponse(res), nil
 }
 
-func (f *financeServiceClient) GetOverviewAnnualStatement() (*dto.GetOverviewStatementResponse, *errors.AppError) {
+func (f *financeServiceClient) GetOverviewAnnualStatement() (*domain.GetOverviewStatementResponse, *errors.AppError) {
 	res, err := f.client.GetOverviewAnnualStatement(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		logger.Error("cannot get annual overview statement: ", err)
 		return nil, errors.BadGatewayError(err.Error())
 	}
-	return f.toGetOverviewStatementResponseDto(res), nil
+	return f.toGetOverviewStatementResponse(res), nil
 }
 
-func (f *financeServiceClient) newTransactionRequest(msg []string) (*pb.TransactionRequest, *errors.AppError) {
-	size := len(msg)
-	if size < 3 {
-		logger.Error("invalid command length")
-		return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck the syntax, !p/!e <account_name> <amount><category> <description>")
-	}
-
-	regex := regexp.MustCompile(`(^\d+(\.\d+)?)([a-z]+)`)
-	amountAndCategory := regex.FindStringSubmatch(msg[2])
-	var amountAsStr string
-	var category string
-	acSize := len(amountAndCategory)
-	if acSize == 3 {
-		amountAsStr = amountAndCategory[1]
-		category = amountAndCategory[2]
-	} else if acSize == 4 {
-		amountAsStr = amountAndCategory[1]
-		category = amountAndCategory[3]
-	} else {
-		logger.Error("invalid amount and category combination['%v']", msg[2])
-		return nil, errors.BadRequestError("Invalid amount and category combination")
-	}
-
-	amount, err := strconv.ParseFloat(amountAsStr, 64)
-	if err != nil {
-		logger.Error("cannot parse amount to float64: ", err)
-		return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck syntax and amount of transaction in the command")
-	}
-
-	var description string
-	if size > 3 {
-		description = strings.Join(msg[3:], " ")
-	}
-
-	req := &pb.TransactionRequest{
-		AccountName: msg[1],
-		Amount:      amount,
-		Category:    category,
-		Description: description,
-	}
-	return req, nil
-}
-
-func (f *financeServiceClient) newTransferRequest(msg []string) (*pb.TransferRequest, *errors.AppError) {
-	size := len(msg)
-	if size < 4 {
-		logger.Error("invalid command length")
-		return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck the syntax, !t <transfer_from> <transfer_to> <amount> <description>")
-	}
-
-	amount, err := strconv.ParseFloat(msg[3], 64)
-	if err != nil {
-		logger.Error("cannot parse amount to float64: ", err)
-		return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck syntax and amount of transaction in the command")
-	}
-
-	var description string
-	if size > 4 {
-		description = strings.Join(msg[4:], " ")
-	}
-
-	req := &pb.TransferRequest{
-		FromAccountName: msg[1],
-		ToAccountName:   msg[2],
-		Amount:          amount,
-		Description:     description,
-	}
-	return req, nil
-}
-
-func (*financeServiceClient) toGetOverviewStatementResponseDto(o *pb.OverviewStatementResponse) *dto.GetOverviewStatementResponse {
-	revenueEntries := make([]dto.CategorizedEntry, len(o.Revenue.Entries))
-	expenseEntries := make([]dto.CategorizedEntry, len(o.Expense.Entries))
+func (*financeServiceClient) toGetOverviewStatementResponse(o *pb.OverviewStatementResponse) *domain.GetOverviewStatementResponse {
+	revenueEntries := make([]domain.CategorizedEntry, len(o.Revenue.Entries))
+	expenseEntries := make([]domain.CategorizedEntry, len(o.Expense.Entries))
 	for i, v := range o.Revenue.Entries {
-		revenueEntries[i] = dto.CategorizedEntry{Category: v.Category, Amount: v.Amount}
+		revenueEntries[i] = domain.CategorizedEntry{Category: v.Category, Amount: v.Amount}
 	}
 	for i, v := range o.Expense.Entries {
-		expenseEntries[i] = dto.CategorizedEntry{Category: v.Category, Amount: v.Amount}
+		expenseEntries[i] = domain.CategorizedEntry{Category: v.Category, Amount: v.Amount}
 	}
-	revenue := dto.GetOverviewStatementSection{
-		Total:   o.Revenue.Total,
-		Entries: revenueEntries,
-	}
-	expense := dto.GetOverviewStatementSection{
-		Total:   o.Expense.Total,
-		Entries: expenseEntries,
-	}
-	return &dto.GetOverviewStatementResponse{
-		Revenue: revenue,
-		Expense: expense,
-		Profit:  o.Profit,
+	return &domain.GetOverviewStatementResponse{
+		Revenue: domain.GetOverviewStatementSection{
+			Total:   o.Revenue.Total,
+			Entries: revenueEntries,
+		},
+		Expense: domain.GetOverviewStatementSection{
+			Total:   o.Expense.Total,
+			Entries: expenseEntries,
+		},
+		Profit: o.Profit,
 	}
 }

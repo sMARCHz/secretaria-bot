@@ -19,14 +19,14 @@ type Configuration struct {
 }
 
 type AppConfiguration struct {
-	Port         string
-	TestUsername string
+	Port         string `mapstructure:"port"`
+	TestUsername string `mapstructure:"test_username"`
 }
 
 type LineConfiguration struct {
-	UserID        string
-	ChannelSecret string
-	ChannelToken  string
+	UserID        string `mapstructure:"user_id"`
+	ChannelSecret string `mapstructure:"channel_secret"`
+	ChannelToken  string `mapstructure:"channel_token"`
 }
 
 func Get() Configuration {
@@ -50,14 +50,18 @@ func loadConfig() Configuration {
 	}
 
 	// ENV
-	if err := viper.BindEnv("line.channelsecret", "LINE_CHANNEL_SECRET"); err != nil {
+	if err := viper.BindEnv("line.channel_secret", "LINE_CHANNEL_SECRET"); err != nil {
 		logger.Fatal("failed to bind LINE_CHANNEL_SECRET env: ", err)
 	}
-	if err := viper.BindEnv("line.channeltoken", "LINE_CHANNEL_TOKEN"); err != nil {
+	if err := viper.BindEnv("line.channel_token", "LINE_CHANNEL_TOKEN"); err != nil {
 		logger.Fatal("failed to bind LINE_CHANNEL_TOKEN env: ", err)
 	}
-	if err := viper.BindEnv("app.testusername", "APP_TEST_USERNAME"); err != nil {
+	if err := viper.BindEnv("app.test_username", "APP_TEST_USERNAME"); err != nil {
 		logger.Fatal("failed to bind APP_TEST_USERNAME env: ", err)
+	}
+
+	if err := checkMissingConfig(); err != nil {
+		logger.Fatal(err)
 	}
 
 	var configuration Configuration
