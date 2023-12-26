@@ -1,7 +1,7 @@
 app:
   port: 80
 line:
-  userid: Ub005e82b5b457efc7c18e1961a36ae4d
+  user_id: Ub005e82b5b457efc7c18e1961a36ae4d
 finance_url: 13.229.244.121:8080
 
 # Dev
