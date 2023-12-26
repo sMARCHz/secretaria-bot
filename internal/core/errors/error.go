@@ -1,7 +1,6 @@
 package errors
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -11,7 +10,7 @@ type AppError struct {
 }
 
 func (a *AppError) Error() string {
-	return fmt.Sprintf("status code: %v, message: %s", a.StatusCode, a.Message)
+	return a.Message
 }
 
 func BadRequestError(msg string) *AppError {
@@ -32,4 +31,18 @@ func InternalServerError(msg string) *AppError {
 
 func BadGatewayError(msg string) *AppError {
 	return &AppError{StatusCode: http.StatusBadGateway, Message: msg}
+}
+
+func GetErrorMessage(err error) string {
+	if appErr, ok := err.(*AppError); ok {
+		return appErr.Message
+	}
+	return err.Error()
+}
+
+func GetStatusCode(err error) int {
+	if appErr, ok := err.(*AppError); ok {
+		return appErr.StatusCode
+	}
+	return http.StatusInternalServerError
 }

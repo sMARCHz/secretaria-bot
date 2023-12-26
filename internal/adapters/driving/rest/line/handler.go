@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/sMARCHz/go-secretaria-bot/internal/config"
+	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/services"
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
@@ -24,7 +25,7 @@ func (b *LineHandler) HandleLineMessage(ctx *gin.Context) {
 	cfg := config.Get()
 	line, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelToken)
 	if err != nil {
-		logger.Error("cannot create new linebot: ", err)
+		logger.Fatal("cannot create new linebot: ", err)
 	}
 
 	events, err := line.ParseRequest(ctx.Request)
@@ -47,16 +48,18 @@ func (b *LineHandler) processEvents(line *linebot.Client, events []*linebot.Even
 			replyMessage(line, event, "Unauthorized action!")
 			continue
 		}
-		if event.Type == linebot.EventTypeMessage {
-			switch message := event.Message.(type) {
-			case *linebot.TextMessage:
-				res, appErr := b.service.HandleTextMessage(message.Text)
-				if appErr != nil {
-					replyMessage(line, event, appErr.Message)
-					continue
-				}
-				replyMessage(line, event, res.ReplyMessage)
+		if event.Type != linebot.EventTypeMessage {
+			continue
+		}
+
+		switch message := event.Message.(type) {
+		case *linebot.TextMessage:
+			res, err := b.service.HandleTextMessage(message.Text)
+			replyMsg := res.ReplyMessage
+			if err != nil {
+				replyMsg = errors.GetErrorMessage(err)
 			}
+			replyMessage(line, event, replyMsg)
 		}
 	}
 }

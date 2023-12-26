@@ -1,12 +1,12 @@
 package financetest
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sMARCHz/go-secretaria-bot/internal/config"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
+	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/services"
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
@@ -36,7 +36,7 @@ func (t *TestHandler) Test(ctx *gin.Context) {
 
 	res, err := t.service.HandleTextMessage(msg.Message)
 	if err != nil {
-		ctx.AbortWithError(err.StatusCode, errors.New(err.Message))
+		ctx.AbortWithError(errors.GetStatusCode(err), err)
 	} else {
 		ctx.JSON(http.StatusOK, res)
 	}
