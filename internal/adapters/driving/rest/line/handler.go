@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/sMARCHz/go-secretaria-bot/internal/config"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/services"
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
@@ -57,7 +56,7 @@ func (b *LineHandler) processEvents(line *linebot.Client, events []*linebot.Even
 			res, err := b.service.HandleTextMessage(message.Text)
 			replyMsg := res.ReplyMessage
 			if err != nil {
-				replyMsg = errors.GetErrorMessage(err)
+				replyMsg = err.Message
 			}
 			replyMessage(line, event, replyMsg)
 		}

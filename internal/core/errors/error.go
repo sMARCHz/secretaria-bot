@@ -32,17 +32,3 @@ func InternalServerError(msg string) *AppError {
 func BadGatewayError(msg string) *AppError {
 	return &AppError{StatusCode: http.StatusBadGateway, Message: msg}
 }
-
-func GetErrorMessage(err error) string {
-	if appErr, ok := err.(*AppError); ok {
-		return appErr.Message
-	}
-	return err.Error()
-}
-
-func GetStatusCode(err error) int {
-	if appErr, ok := err.(*AppError); ok {
-		return appErr.StatusCode
-	}
-	return http.StatusInternalServerError
-}

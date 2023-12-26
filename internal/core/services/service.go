@@ -5,10 +5,11 @@ import (
 
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/client"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
+	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
 )
 
 type BotService interface {
-	HandleTextMessage(string) (*domain.TextMessageResponse, error)
+	HandleTextMessage(string) (*domain.TextMessageResponse, *errors.AppError)
 }
 
 type botService struct {
@@ -21,13 +22,13 @@ func NewBotService(financeService client.FinanceServiceClient) BotService {
 	}
 }
 
-func (b *botService) HandleTextMessage(msg string) (*domain.TextMessageResponse, error) {
+func (b *botService) HandleTextMessage(msg string) (*domain.TextMessageResponse, *errors.AppError) {
 	replyMsg := ""
 	msg = strings.TrimSpace(msg)
 	msg = strings.ToLower(msg)
 	msgArr := strings.Fields(msg)
 
-	var err error
+	var err *errors.AppError
 	switch msgArr[0] {
 	case "!p":
 		replyMsg, err = b.callWithdraw(msgArr)

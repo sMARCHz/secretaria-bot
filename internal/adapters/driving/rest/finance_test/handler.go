@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sMARCHz/go-secretaria-bot/internal/config"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/services"
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
@@ -32,11 +31,13 @@ func (t *TestHandler) Test(ctx *gin.Context) {
 	var msg domain.TextMessageRequest
 	if err := ctx.BindJSON(&msg); err != nil {
 		logger.Error("cannot bind json: ", err)
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	res, err := t.service.HandleTextMessage(msg.Message)
 	if err != nil {
-		ctx.AbortWithError(errors.GetStatusCode(err), err)
+		ctx.AbortWithError(err.StatusCode, err)
 	} else {
 		ctx.JSON(http.StatusOK, res)
 	}
