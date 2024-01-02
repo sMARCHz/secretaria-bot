@@ -54,11 +54,11 @@ func (b *LineHandler) processEvents(line *linebot.Client, events []*linebot.Even
 		switch message := event.Message.(type) {
 		case *linebot.TextMessage:
 			res, err := b.service.HandleTextMessage(message.Text)
-			replyMsg := res.ReplyMessage
 			if err != nil {
-				replyMsg = err.Message
+				replyMessage(line, event, err.Message)
+				continue
 			}
-			replyMessage(line, event, replyMsg)
+			replyMessage(line, event, res.ReplyMessage)
 		}
 	}
 }
