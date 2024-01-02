@@ -14,6 +14,6 @@ rm:
 	docker rm secretaria-bot
 
 protoc:
-	protoc internal/adapters/driven/financeservice/proto/finance.proto --go_out=internal/adapters/driven/financeservice --go-grpc_out=internal/adapters/driven/financeservice
+	protoc proto/finance.proto --go_out=internal/adapters/driven/financeservice --go-grpc_out=internal/adapters/driven/financeservice
 
 .PHONY: build run start stop rm protoc

@@ -1,7 +1,6 @@
 package errors
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -11,7 +10,7 @@ type AppError struct {
 }
 
 func (a *AppError) Error() string {
-	return fmt.Sprintf("status code: %v, message: %s", a.StatusCode, a.Message)
+	return a.Message
 }
 
 func BadRequestError(msg string) *AppError {

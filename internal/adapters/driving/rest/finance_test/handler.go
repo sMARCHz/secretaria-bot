@@ -1,7 +1,6 @@
 package financetest
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,11 +31,13 @@ func (t *TestHandler) Test(ctx *gin.Context) {
 	var msg domain.TextMessageRequest
 	if err := ctx.BindJSON(&msg); err != nil {
 		logger.Error("cannot bind json: ", err)
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	res, err := t.service.HandleTextMessage(msg.Message)
 	if err != nil {
-		ctx.AbortWithError(err.StatusCode, errors.New(err.Message))
+		ctx.AbortWithError(err.StatusCode, err)
 	} else {
 		ctx.JSON(http.StatusOK, res)
 	}
