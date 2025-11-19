@@ -38,13 +38,13 @@ func Get() Configuration {
 
 func Reset() {
 	loadOnce = sync.Once{}
+	data = Configuration{}
 }
 
 func loadConfig() Configuration {
 	viper.AddConfigPath(".")
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-
 	if err := viper.ReadInConfig(); err != nil {
 		logger.Fatal("failed to load configuration: ", err)
 	}
