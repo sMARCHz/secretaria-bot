@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	sync := logger.InitProductionLogger()
+	sync := logger.InitLogger()
 	defer sync()
 
 	rest.Start()

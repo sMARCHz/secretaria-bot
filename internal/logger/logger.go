@@ -5,19 +5,20 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func InitProductionLogger() func() error {
-	zap := NewZapProduction()
+func InitLogger() func() error {
+	zap := newZapLogger()
 	logger = zap.Sugar()
 	return zap.Sync
 }
 
-func NewZapProduction() *zap.Logger {
+func newZapLogger() *zap.Logger {
+	config := zap.NewProductionConfig()
+	config.OutputPaths = []string{"logs/secretaria.log", "stdout"}
+
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.TimeKey = "timestamp"
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	config := zap.NewProductionConfig()
 	config.EncoderConfig = encoderConfig
-	config.OutputPaths = []string{"logs/secretaria.log", "stdout"}
 
 	logger, err := config.Build()
 	if err != nil {
