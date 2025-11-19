@@ -10,44 +10,44 @@ import (
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/utils"
 )
 
-func (b *botService) callWithdraw(msgArr []string) (string, *errors.AppError) {
+func (b *botServiceImpl) callWithdraw(msgArr []string) (string, *errors.AppError) {
 	req, err := utils.ParseTransactionRequest(msgArr)
 	if err != nil {
 		return "", err
 	}
-	res, err := b.financeService.Withdraw(req)
+	res, err := b.financeClient.Withdraw(req)
 	if err != nil {
 		return "", err
 	}
 	return fmt.Sprintf("Succesfully withdraw\n================\nResult\nAccount: %v\nBalance: ฿%v", res.Account, res.Balance), nil
 }
 
-func (b *botService) callDeposit(msgArr []string) (string, *errors.AppError) {
+func (b *botServiceImpl) callDeposit(msgArr []string) (string, *errors.AppError) {
 	req, err := utils.ParseTransactionRequest(msgArr)
 	if err != nil {
 		return "", err
 	}
-	res, err := b.financeService.Deposit(req)
+	res, err := b.financeClient.Deposit(req)
 	if err != nil {
 		return "", err
 	}
 	return fmt.Sprintf("Succesfully deposit\n================\nResult\nAccount: %v\nBalance: ฿%v", res.Account, res.Balance), nil
 }
 
-func (b *botService) callTransfer(msgArr []string) (string, *errors.AppError) {
+func (b *botServiceImpl) callTransfer(msgArr []string) (string, *errors.AppError) {
 	req, err := utils.ParseTransferRequest(msgArr)
 	if err != nil {
 		return "", err
 	}
-	res, err := b.financeService.Transfer(req)
+	res, err := b.financeClient.Transfer(req)
 	if err != nil {
 		return "", err
 	}
 	return fmt.Sprintf("Succesfully transfer\n================\nResult\nAccount: %v\nBalance: ฿%v", res.FromAccount, res.Balance), nil
 }
 
-func (b *botService) callBalance() (string, *errors.AppError) {
-	res, err := b.financeService.GetBalance()
+func (b *botServiceImpl) callBalance() (string, *errors.AppError) {
+	res, err := b.financeClient.GetBalance()
 	if err != nil {
 		return "", err
 	}
@@ -60,7 +60,7 @@ func (b *botService) callBalance() (string, *errors.AppError) {
 	return sb.String(), nil
 }
 
-func (b *botService) callStatement(msgArr []string) (string, *errors.AppError) {
+func (b *botServiceImpl) callStatement(msgArr []string) (string, *errors.AppError) {
 	var res *domain.GetOverviewStatementResponse
 	var err *errors.AppError
 	statementType := "Income"
@@ -81,20 +81,20 @@ func (b *botService) callStatement(msgArr []string) (string, *errors.AppError) {
 	return printStatement(res, statementType)
 }
 
-func (b *botService) callMonthlyOrAnnualStatement(statmentType string) (*domain.GetOverviewStatementResponse, string, *errors.AppError) {
+func (b *botServiceImpl) callMonthlyOrAnnualStatement(statmentType string) (*domain.GetOverviewStatementResponse, string, *errors.AppError) {
 	switch statmentType {
 	case "m":
-		res, err := b.financeService.GetOverviewMonthlyStatement()
+		res, err := b.financeClient.GetOverviewMonthlyStatement()
 		return res, "Monthly", err
 	case "a":
-		res, err := b.financeService.GetOverviewAnnualStatement()
+		res, err := b.financeClient.GetOverviewAnnualStatement()
 		return res, "Annual", err
 	default:
 		return nil, "", errors.BadRequestError("Invalid command")
 	}
 }
 
-func (b *botService) callSelectedRangeStatement(from, to string) (*domain.GetOverviewStatementResponse, *errors.AppError) {
+func (b *botServiceImpl) callSelectedRangeStatement(from, to string) (*domain.GetOverviewStatementResponse, *errors.AppError) {
 	fromAsTime, err := time.Parse("2006-01-02", from)
 	if err != nil {
 		return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck the from_date, <statement> <from_date: 2022-01-01> <to_date: 2022-01-01>")
@@ -107,7 +107,7 @@ func (b *botService) callSelectedRangeStatement(from, to string) (*domain.GetOve
 		From: fromAsTime,
 		To:   toAsTime,
 	}
-	return b.financeService.GetOverviewStatement(req)
+	return b.financeClient.GetOverviewStatement(req)
 }
 
 func printStatement(res *domain.GetOverviewStatementResponse, statementType string) (string, *errors.AppError) {

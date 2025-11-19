@@ -12,17 +12,17 @@ type BotService interface {
 	HandleTextMessage(string) (*domain.TextMessageResponse, *errors.AppError)
 }
 
-type botService struct {
-	financeService client.FinanceServiceClient
+type botServiceImpl struct {
+	financeClient client.FinanceServiceClient
 }
 
-func NewBotService(financeService client.FinanceServiceClient) BotService {
-	return &botService{
-		financeService: financeService,
+func NewBotService(financeClient client.FinanceServiceClient) BotService {
+	return &botServiceImpl{
+		financeClient: financeClient,
 	}
 }
 
-func (b *botService) HandleTextMessage(msg string) (*domain.TextMessageResponse, *errors.AppError) {
+func (b *botServiceImpl) HandleTextMessage(msg string) (*domain.TextMessageResponse, *errors.AppError) {
 	replyMsg := ""
 	msg = strings.TrimSpace(msg)
 	msg = strings.ToLower(msg)
