@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/driven/financeservice/pb"
+	"github.com/sMARCHz/go-secretaria-bot/internal/config"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/client"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
@@ -16,7 +17,8 @@ type financeServiceClient struct {
 	client pb.FinanceServiceClient
 }
 
-func NewFinanceServiceClient(url string) client.FinanceServiceClient {
+func NewFinanceServiceClient() client.FinanceServiceClient {
+	url := config.Get().FinanceServiceURL
 	conn, err := grpc.Dial(url, grpc.WithInsecure())
 	if err != nil {
 		logger.Fatalf("could not connect to %v:", url, err)

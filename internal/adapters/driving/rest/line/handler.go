@@ -21,13 +21,13 @@ func NewLineHandler(service services.BotService) LineHandler {
 }
 
 func (b *LineHandler) HandleLineMessage(ctx *gin.Context) {
-	cfg := config.Get()
-	line, err := linebot.New(cfg.Line.ChannelSecret, cfg.Line.ChannelToken)
+	lineCfg := config.Get().Line
+	client, err := linebot.New(lineCfg.ChannelSecret, lineCfg.ChannelToken)
 	if err != nil {
 		logger.Fatal("cannot create new linebot: ", err)
 	}
 
-	events, err := line.ParseRequest(ctx.Request)
+	events, err := client.ParseRequest(ctx.Request)
 	if err != nil {
 		code := http.StatusInternalServerError
 		if err == linebot.ErrInvalidSignature {
@@ -38,12 +38,12 @@ func (b *LineHandler) HandleLineMessage(ctx *gin.Context) {
 		return
 	}
 
-	b.processEvents(line, events)
+	b.processEvents(client, events)
 }
 
 func (b *LineHandler) processEvents(line *linebot.Client, events []*linebot.Event) {
 	for _, event := range events {
-		if !isMe(event) {
+		if !isMyLineAccount(event) {
 			replyMessage(line, event, "Unauthorized action!")
 			continue
 		}
@@ -56,9 +56,11 @@ func (b *LineHandler) processEvents(line *linebot.Client, events []*linebot.Even
 			res, err := b.service.HandleTextMessage(message.Text)
 			if err != nil {
 				replyMessage(line, event, err.Message)
-				continue
+			} else {
+				replyMessage(line, event, res.ReplyMessage)
 			}
-			replyMessage(line, event, res.ReplyMessage)
+		default:
+			replyMessage(line, event, "Unknown message type")
 		}
 	}
 }
@@ -69,6 +71,6 @@ func replyMessage(line *linebot.Client, event *linebot.Event, replyMsg string) {
 	}
 }
 
-func isMe(event *linebot.Event) bool {
+func isMyLineAccount(event *linebot.Event) bool {
 	return event.Source.UserID == config.Get().Line.UserID
 }

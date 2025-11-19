@@ -7,15 +7,12 @@ import (
 	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/driven/financeservice"
 	financetest "github.com/sMARCHz/go-secretaria-bot/internal/adapters/driving/rest/finance_test"
 	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/driving/rest/line"
-	"github.com/sMARCHz/go-secretaria-bot/internal/config"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/services"
 )
 
 func newRouter() *gin.Engine {
 	router := gin.Default()
-	service := services.NewBotService(
-		financeservice.NewFinanceServiceClient(config.Get().FinanceServiceURL),
-	)
+	service := services.NewBotService(financeservice.NewFinanceServiceClient())
 	lineHandler := line.NewLineHandler(service)
 	testHandler := financetest.NewTestHandler(service)
 
