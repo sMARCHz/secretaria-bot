@@ -10,6 +10,7 @@ import (
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 	"github.com/sMARCHz/go-secretaria-bot/internal/ports/client"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -19,9 +20,9 @@ type financeServiceClient struct {
 
 func NewFinanceServiceClient() client.FinanceServiceClient {
 	url := config.Get().FinanceServiceURL
-	conn, err := grpc.Dial(url, grpc.WithInsecure())
+	conn, err := grpc.Dial(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		logger.Fatalf("could not connect to %v:", url, err)
+		logger.Fatalf("could not connect to %v: %v", url, err)
 	}
 	return &financeServiceClient{
 		client: pb.NewFinanceServiceClient(conn),
