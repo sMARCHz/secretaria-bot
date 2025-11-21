@@ -9,7 +9,7 @@ import (
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/services"
 )
 
-func newRouter() *gin.Engine {
+func NewRouter() *gin.Engine {
 	router := gin.Default()
 	service := services.NewBotService(finance.NewFinanceServiceClient())
 	lineHandler := line.NewLineHandler(service)

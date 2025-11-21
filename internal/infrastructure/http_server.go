@@ -1,4 +1,4 @@
-package http
+package infrastructure
 
 import (
 	"context"
@@ -8,16 +8,17 @@ import (
 	"syscall"
 	"time"
 
+	httpapi "github.com/sMARCHz/go-secretaria-bot/internal/adapters/inbound/http"
 	"github.com/sMARCHz/go-secretaria-bot/internal/config"
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
 )
 
-func Start() {
+func StartHTTPServer() {
 	// Start server
 	cfg := config.Get()
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%v", cfg.App.Port),
-		Handler: newRouter(),
+		Handler: httpapi.NewRouter(),
 	}
 	go func() {
 		logger.Infof("Listening and serving HTTP on :%v", cfg.App.Port)
