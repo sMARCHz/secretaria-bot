@@ -3,20 +3,17 @@ package services
 import (
 	"strings"
 
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/client"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
+	"github.com/sMARCHz/go-secretaria-bot/internal/ports/client"
+	"github.com/sMARCHz/go-secretaria-bot/internal/ports/inbound"
 )
-
-type BotService interface {
-	HandleTextMessage(string) (*domain.TextMessageResponse, *errors.AppError)
-}
 
 type botServiceImpl struct {
 	financeClient client.FinanceServiceClient
 }
 
-func NewBotService(financeClient client.FinanceServiceClient) BotService {
+func NewBotService(financeClient client.FinanceServiceClient) inbound.BotService {
 	return &botServiceImpl{
 		financeClient: financeClient,
 	}

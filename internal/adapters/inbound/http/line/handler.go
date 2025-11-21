@@ -6,15 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/sMARCHz/go-secretaria-bot/internal/config"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/services"
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
+	"github.com/sMARCHz/go-secretaria-bot/internal/ports/inbound"
 )
 
 type LineHandler struct {
-	service services.BotService
+	service inbound.BotService
 }
 
-func NewLineHandler(service services.BotService) LineHandler {
+func NewLineHandler(service inbound.BotService) LineHandler {
 	return LineHandler{
 		service: service,
 	}

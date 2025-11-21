@@ -1,14 +1,14 @@
-package financeservice
+package finance
 
 import (
 	"context"
 
-	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/driven/financeservice/pb"
+	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/client/finance/pb"
 	"github.com/sMARCHz/go-secretaria-bot/internal/config"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/client"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
 	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
+	"github.com/sMARCHz/go-secretaria-bot/internal/ports/client"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
