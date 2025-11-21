@@ -6,9 +6,9 @@ import (
 )
 
 func InitLogger() func() error {
-	zap := newZapLogger()
-	logger = zap.Sugar()
-	return zap.Sync
+	l := newZapLogger()
+	logger = l.Sugar()
+	return l.Sync
 }
 
 func newZapLogger() *zap.Logger {
