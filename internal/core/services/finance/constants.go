@@ -4,5 +4,4 @@ var commandPrefix = []string{"!p", "!e", "!t", "balance", "statement"}
 
 const (
 	invalidCommandMsg = "Invalid command"
-	unknownCommandMsg = "Command not found"
 )
