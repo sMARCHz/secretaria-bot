@@ -23,19 +23,19 @@ func StartHTTPServer() {
 	go func() {
 		logger.Infof("Listening and serving HTTP on :%v", cfg.App.Port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Fatal("cannot start server: ", err)
+			logger.Fatal("Cannot start a server: ", err)
 		}
 	}()
 
-	// Shutdown
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
-	<-ctx.Done()
-	cancel()
+	// Shutdown: listen for interrupt/terminate signals (SIGKILL cannot be caught)
+	sigCtx, sigCancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	<-sigCtx.Done()
+	sigCancel()
 
-	ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := server.Shutdown(ctx); err != nil {
-		logger.Fatal("server forced to shutdown: ", err)
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		logger.Fatal("Forcefully shutting down: ", err)
 	}
 	logger.Info("Gracefully shutting down...")
 }
