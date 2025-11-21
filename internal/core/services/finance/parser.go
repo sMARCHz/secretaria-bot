@@ -1,4 +1,4 @@
-package utils
+package finance
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 
 var transactionCommandPattern = regexp.MustCompile(`^(\d+(?:\.\d+)?)?([a-zA-Z]+)$`)
 
-func ParseTransactionRequest(msgArr []string) (*domain.TransactionRequest, *errors.AppError) {
+func parseTransactionRequest(msgArr []string) (*domain.TransactionRequest, *errors.AppError) {
 	if err := validateLength(msgArr, 3, "!p/!e <account_name> <amount><category> <description>"); err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func ParseTransactionRequest(msgArr []string) (*domain.TransactionRequest, *erro
 	}, nil
 }
 
-func ParseTransferRequest(msgArr []string) (*domain.TransferRequest, *errors.AppError) {
+func parseTransferRequest(msgArr []string) (*domain.TransferRequest, *errors.AppError) {
 	if err := validateLength(msgArr, 4, "!t <transfer_from> <transfer_to> <amount> <description>"); err != nil {
 		return nil, err
 	}

@@ -1,4 +1,4 @@
-package services
+package finance
 
 import (
 	"fmt"
@@ -7,47 +7,86 @@ import (
 
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
 	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/utils"
+	"github.com/sMARCHz/go-secretaria-bot/internal/ports/client"
 )
 
-func (b *botServiceImpl) callWithdraw(msgArr []string) (string, *errors.AppError) {
-	req, err := utils.ParseTransactionRequest(msgArr)
+// Handler implements command handling for finance-related commands.
+type Handler struct {
+	client client.FinanceServiceClient
+}
+
+// NewHandler constructs a finance command handler.
+func NewHandler(client client.FinanceServiceClient) *Handler {
+	return &Handler{client: client}
+}
+
+func (h *Handler) Match(cmd string) bool {
+	for _, prefix := range commandPrefix {
+		if cmd == prefix {
+			return true
+		}
+	}
+	return false
+}
+
+func (h *Handler) Handle(tokenizedMsg []string) (string, *errors.AppError) {
+	if len(tokenizedMsg) == 0 {
+		return "", errors.BadRequestError(invalidCommandMsg)
+	}
+	switch tokenizedMsg[0] {
+	case "!p":
+		return h.withdraw(tokenizedMsg)
+	case "!e":
+		return h.deposit(tokenizedMsg)
+	case "!t":
+		return h.transfer(tokenizedMsg)
+	case "balance":
+		return h.getBalance()
+	case "statement":
+		return h.getStatement(tokenizedMsg)
+	default:
+		return "", errors.BadRequestError(invalidCommandMsg)
+	}
+}
+
+func (h *Handler) withdraw(tokenizedMsg []string) (string, *errors.AppError) {
+	req, err := parseTransactionRequest(tokenizedMsg)
 	if err != nil {
 		return "", err
 	}
-	res, err := b.financeClient.Withdraw(req)
+	res, err := h.client.Withdraw(req)
 	if err != nil {
 		return "", err
 	}
 	return fmt.Sprintf("Succesfully withdraw\n================\nResult\nAccount: %v\nBalance: ฿%v", res.Account, res.Balance), nil
 }
 
-func (b *botServiceImpl) callDeposit(msgArr []string) (string, *errors.AppError) {
-	req, err := utils.ParseTransactionRequest(msgArr)
+func (h *Handler) deposit(tokenizedMsg []string) (string, *errors.AppError) {
+	req, err := parseTransactionRequest(tokenizedMsg)
 	if err != nil {
 		return "", err
 	}
-	res, err := b.financeClient.Deposit(req)
+	res, err := h.client.Deposit(req)
 	if err != nil {
 		return "", err
 	}
 	return fmt.Sprintf("Succesfully deposit\n================\nResult\nAccount: %v\nBalance: ฿%v", res.Account, res.Balance), nil
 }
 
-func (b *botServiceImpl) callTransfer(msgArr []string) (string, *errors.AppError) {
-	req, err := utils.ParseTransferRequest(msgArr)
+func (h *Handler) transfer(tokenizedMsg []string) (string, *errors.AppError) {
+	req, err := parseTransferRequest(tokenizedMsg)
 	if err != nil {
 		return "", err
 	}
-	res, err := b.financeClient.Transfer(req)
+	res, err := h.client.Transfer(req)
 	if err != nil {
 		return "", err
 	}
 	return fmt.Sprintf("Succesfully transfer\n================\nResult\nAccount: %v\nBalance: ฿%v", res.FromAccount, res.Balance), nil
 }
 
-func (b *botServiceImpl) callBalance() (string, *errors.AppError) {
-	res, err := b.financeClient.GetBalance()
+func (h *Handler) getBalance() (string, *errors.AppError) {
+	res, err := h.client.GetBalance()
 	if err != nil {
 		return "", err
 	}
@@ -60,17 +99,17 @@ func (b *botServiceImpl) callBalance() (string, *errors.AppError) {
 	return sb.String(), nil
 }
 
-func (b *botServiceImpl) callStatement(msgArr []string) (string, *errors.AppError) {
+func (h *Handler) getStatement(tokenizedMsg []string) (string, *errors.AppError) {
 	var res *domain.GetOverviewStatementResponse
 	var err *errors.AppError
 	statementType := "Income"
-	switch len(msgArr) {
+	switch len(tokenizedMsg) {
 	case 1:
-		res, statementType, err = b.callMonthlyOrAnnualStatement("m")
+		res, statementType, err = h.callMonthlyOrAnnualStatement("m")
 	case 2:
-		res, statementType, err = b.callMonthlyOrAnnualStatement(msgArr[1])
+		res, statementType, err = h.callMonthlyOrAnnualStatement(tokenizedMsg[1])
 	case 3:
-		res, err = b.callSelectedRangeStatement(msgArr[1], msgArr[2])
+		res, err = h.callSelectedRangeStatement(tokenizedMsg[1], tokenizedMsg[2])
 	default:
 		err = errors.BadRequestError("Invalid command")
 	}
@@ -81,20 +120,20 @@ func (b *botServiceImpl) callStatement(msgArr []string) (string, *errors.AppErro
 	return printStatement(res, statementType)
 }
 
-func (b *botServiceImpl) callMonthlyOrAnnualStatement(statmentType string) (*domain.GetOverviewStatementResponse, string, *errors.AppError) {
+func (h *Handler) callMonthlyOrAnnualStatement(statmentType string) (*domain.GetOverviewStatementResponse, string, *errors.AppError) {
 	switch statmentType {
 	case "m":
-		res, err := b.financeClient.GetOverviewMonthlyStatement()
+		res, err := h.client.GetOverviewMonthlyStatement()
 		return res, "Monthly", err
 	case "a":
-		res, err := b.financeClient.GetOverviewAnnualStatement()
+		res, err := h.client.GetOverviewAnnualStatement()
 		return res, "Annual", err
 	default:
-		return nil, "", errors.BadRequestError("Invalid command")
+		return nil, "", errors.BadRequestError(invalidCommandMsg)
 	}
 }
 
-func (b *botServiceImpl) callSelectedRangeStatement(from, to string) (*domain.GetOverviewStatementResponse, *errors.AppError) {
+func (h *Handler) callSelectedRangeStatement(from, to string) (*domain.GetOverviewStatementResponse, *errors.AppError) {
 	fromAsTime, err := time.Parse("2006-01-02", from)
 	if err != nil {
 		return nil, errors.BadRequestError("Invalid command's arguments.\nPlease recheck the from_date, <statement> <from_date: 2022-01-01> <to_date: 2022-01-01>")
@@ -107,7 +146,7 @@ func (b *botServiceImpl) callSelectedRangeStatement(from, to string) (*domain.Ge
 		From: fromAsTime,
 		To:   toAsTime,
 	}
-	return b.financeClient.GetOverviewStatement(req)
+	return h.client.GetOverviewStatement(req)
 }
 
 func printStatement(res *domain.GetOverviewStatementResponse, statementType string) (string, *errors.AppError) {
