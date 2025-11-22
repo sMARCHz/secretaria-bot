@@ -8,10 +8,10 @@ start:
 	docker start secretaria-bot
 
 stop:
-	docker stop secretaria-bot
+	docker stop secretaria-bot && docker rm secretaria-bot
 
 rm:
-	docker rm secretaria-bot && docker rmi secretaria-bot:latest
+	docker rmi secretaria-bot:latest
 
 protoc:
 	protoc proto/finance.proto --go_out=internal/adapters/driven/financeservice --go-grpc_out=internal/adapters/driven/financeservice
