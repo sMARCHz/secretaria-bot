@@ -12,22 +12,23 @@ import (
 
 type LineHandler struct {
 	service inbound.BotService
+	client  *linebot.Client
 }
 
 func NewLineHandler(service inbound.BotService) LineHandler {
+	lineCfg := config.Get().Line
+	client, err := linebot.New(lineCfg.ChannelSecret, lineCfg.ChannelToken)
+	if err != nil {
+		logger.Fatal("cannot create linebot client: ", err)
+	}
 	return LineHandler{
 		service: service,
+		client:  client,
 	}
 }
 
 func (b *LineHandler) HandleLineMessage(ctx *gin.Context) {
-	lineCfg := config.Get().Line
-	client, err := linebot.New(lineCfg.ChannelSecret, lineCfg.ChannelToken)
-	if err != nil {
-		logger.Fatal("cannot create new linebot: ", err)
-	}
-
-	events, err := client.ParseRequest(ctx.Request)
+	events, err := b.client.ParseRequest(ctx.Request)
 	if err != nil {
 		code := http.StatusInternalServerError
 		if err == linebot.ErrInvalidSignature {
@@ -38,13 +39,13 @@ func (b *LineHandler) HandleLineMessage(ctx *gin.Context) {
 		return
 	}
 
-	b.processEvents(client, events)
+	b.processEvents(events)
 }
 
-func (b *LineHandler) processEvents(line *linebot.Client, events []*linebot.Event) {
+func (b *LineHandler) processEvents(events []*linebot.Event) {
 	for _, event := range events {
 		if !isMyLineAccount(event) {
-			replyMessage(line, event, "Unauthorized action!")
+			b.replyMessage(event, "Unauthorized action!")
 			continue
 		}
 		if event.Type != linebot.EventTypeMessage {
@@ -55,18 +56,18 @@ func (b *LineHandler) processEvents(line *linebot.Client, events []*linebot.Even
 		case *linebot.TextMessage:
 			res, err := b.service.HandleTextMessage(message.Text)
 			if err != nil {
-				replyMessage(line, event, err.Message)
+				b.replyMessage(event, err.Message)
 			} else {
-				replyMessage(line, event, res.ReplyMessage)
+				b.replyMessage(event, res.ReplyMessage)
 			}
 		default:
-			replyMessage(line, event, "Unknown message type")
+			b.replyMessage(event, "Unknown message type")
 		}
 	}
 }
 
-func replyMessage(line *linebot.Client, event *linebot.Event, replyMsg string) {
-	if _, err := line.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMsg)).Do(); err != nil {
+func (b *LineHandler) replyMessage(event *linebot.Event, replyMsg string) {
+	if _, err := b.client.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMsg)).Do(); err != nil {
 		logger.Error("cannot reply message: ", err)
 	}
 }
