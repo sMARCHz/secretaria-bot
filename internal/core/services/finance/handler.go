@@ -21,10 +21,8 @@ func NewHandler(client client.FinanceServiceClient) *Handler {
 }
 
 func (h *Handler) Match(cmd string) bool {
-	for _, prefix := range commandPrefix {
-		if cmd == prefix {
-			return true
-		}
+	if _, exist := commandPrefixSet[cmd]; exist {
+		return true
 	}
 	return false
 }

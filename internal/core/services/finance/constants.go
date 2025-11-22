@@ -1,6 +1,12 @@
 package finance
 
-var commandPrefix = []string{"!p", "!e", "!t", "balance", "statement"}
+var commandPrefixSet = map[string]struct{}{
+	"!p":        {},
+	"!e":        {},
+	"!t":        {},
+	"balance":   {},
+	"statement": {},
+}
 
 const (
 	invalidCommandMsg = "Invalid command"
