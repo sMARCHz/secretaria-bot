@@ -11,14 +11,12 @@ import (
 )
 
 type botServiceImpl struct {
-	financeClient   client.FinanceServiceClient
 	commandHandlers []CommandHandler
 }
 
 func NewBotService(financeClient client.FinanceServiceClient) inbound.BotService {
 	financeHandler := finance.NewHandler(financeClient)
 	return &botServiceImpl{
-		financeClient:   financeClient,
 		commandHandlers: []CommandHandler{financeHandler},
 	}
 }
@@ -28,7 +26,7 @@ func (b *botServiceImpl) HandleTextMessage(msg string) (*domain.TextMessageRespo
 	msg = strings.ToLower(msg)
 	tokenizedMsg := strings.Fields(msg)
 	if len(tokenizedMsg) == 0 {
-		return &domain.TextMessageResponse{ReplyMessage: "Command not found"}, nil
+		return &domain.TextMessageResponse{ReplyMessage: "No command input"}, nil
 	}
 
 	var err *errors.AppError
