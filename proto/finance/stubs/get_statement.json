@@ -1,0 +1,16 @@
+{
+  "service": "FinanceService",
+  "method": "GetOverviewStatement",
+  "input": {
+    "equals": {}
+  },
+  "output": {
+    "data": {
+      "status": 200,
+      "error": "",
+      "revenue": { "total": 10000.0, "entries": [] },
+      "expense": { "total": 4000.0, "entries": [] },
+      "profit": 6000.0
+    }
+  }
+}

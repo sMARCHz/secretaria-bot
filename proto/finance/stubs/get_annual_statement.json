@@ -1,0 +1,16 @@
+{
+  "service": "FinanceService",
+  "method": "GetOverviewAnnualStatement",
+  "input": {
+    "equals": {}
+  },
+  "output": {
+    "data": {
+      "status": 200,
+      "error": "",
+      "revenue": { "total": 120000.0, "entries": [] },
+      "expense": { "total": 45000.0, "entries": [] },
+      "profit": 75000.0
+    }
+  }
+}

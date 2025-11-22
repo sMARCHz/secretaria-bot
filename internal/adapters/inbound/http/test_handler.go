@@ -38,7 +38,7 @@ func (t *testHandler) handleTestMessage(ctx *gin.Context) {
 
 	res, appErr := t.service.HandleTextMessage(msg.Message)
 	if appErr != nil {
-		ctx.AbortWithError(appErr.StatusCode, appErr)
+		ctx.JSON(appErr.StatusCode, appErr.Message)
 		return
 	}
 

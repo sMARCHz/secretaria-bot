@@ -6,3 +6,4 @@ finance_url: 13.229.244.121:8080
 
 # Dev
 # finance_url: 192.168.1.252:8080
+# finance_url: host.docker.internal:4770

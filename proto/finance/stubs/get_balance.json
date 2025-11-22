@@ -1,0 +1,17 @@
+{
+  "service": "FinanceService",
+  "method": "GetBalance",
+  "input": {
+    "equals": {}
+  },
+  "output": {
+    "data": {
+      "status": 200,
+      "error": "",
+      "accounts": [
+        { "account_name": "cash", "balance": 500.0 },
+        { "account_name": "debit1", "balance": 20000.0 }
+      ]
+    }
+  }
+}
