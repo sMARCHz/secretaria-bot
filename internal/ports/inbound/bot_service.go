@@ -1,8 +1,8 @@
 package inbound
 
 import (
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
+	"github.com/sMARCHz/secretaria-bot/internal/core/domain"
+	"github.com/sMARCHz/secretaria-bot/internal/core/errors"
 )
 
 type BotService interface {

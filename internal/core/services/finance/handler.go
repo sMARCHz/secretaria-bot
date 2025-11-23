@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
-	"github.com/sMARCHz/go-secretaria-bot/internal/ports/client"
+	"github.com/sMARCHz/secretaria-bot/internal/core/domain"
+	"github.com/sMARCHz/secretaria-bot/internal/core/errors"
+	"github.com/sMARCHz/secretaria-bot/internal/ports/client"
 )
 
 // Handler implements command handling for finance-related commands.

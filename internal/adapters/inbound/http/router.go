@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/client/finance"
-	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/inbound/http/line"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/services"
+	"github.com/sMARCHz/secretaria-bot/internal/adapters/client/finance"
+	"github.com/sMARCHz/secretaria-bot/internal/adapters/inbound/http/line"
+	"github.com/sMARCHz/secretaria-bot/internal/core/services"
 )
 
 func NewRouter() *gin.Engine {

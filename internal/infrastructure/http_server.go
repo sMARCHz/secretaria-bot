@@ -8,9 +8,9 @@ import (
 	"syscall"
 	"time"
 
-	httpapi "github.com/sMARCHz/go-secretaria-bot/internal/adapters/inbound/http"
-	"github.com/sMARCHz/go-secretaria-bot/internal/config"
-	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
+	httpapi "github.com/sMARCHz/secretaria-bot/internal/adapters/inbound/http"
+	"github.com/sMARCHz/secretaria-bot/internal/config"
+	"github.com/sMARCHz/secretaria-bot/internal/logger"
 )
 
 func StartHTTPServer() {

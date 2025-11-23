@@ -3,12 +3,12 @@ package finance
 import (
 	"context"
 
-	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/client/finance/pb"
-	"github.com/sMARCHz/go-secretaria-bot/internal/config"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
-	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
-	"github.com/sMARCHz/go-secretaria-bot/internal/ports/client"
+	"github.com/sMARCHz/secretaria-bot/internal/adapters/client/finance/pb"
+	"github.com/sMARCHz/secretaria-bot/internal/config"
+	"github.com/sMARCHz/secretaria-bot/internal/core/domain"
+	"github.com/sMARCHz/secretaria-bot/internal/core/errors"
+	"github.com/sMARCHz/secretaria-bot/internal/logger"
+	"github.com/sMARCHz/secretaria-bot/internal/ports/client"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/emptypb"

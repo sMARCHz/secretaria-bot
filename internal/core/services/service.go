@@ -3,11 +3,11 @@ package services
 import (
 	"strings"
 
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/services/finance"
-	"github.com/sMARCHz/go-secretaria-bot/internal/ports/client"
-	"github.com/sMARCHz/go-secretaria-bot/internal/ports/inbound"
+	"github.com/sMARCHz/secretaria-bot/internal/core/domain"
+	"github.com/sMARCHz/secretaria-bot/internal/core/errors"
+	"github.com/sMARCHz/secretaria-bot/internal/core/services/finance"
+	"github.com/sMARCHz/secretaria-bot/internal/ports/client"
+	"github.com/sMARCHz/secretaria-bot/internal/ports/inbound"
 )
 
 type botServiceImpl struct {

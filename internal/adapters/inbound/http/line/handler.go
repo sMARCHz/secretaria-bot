@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
-	"github.com/sMARCHz/go-secretaria-bot/internal/config"
-	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
-	"github.com/sMARCHz/go-secretaria-bot/internal/ports/inbound"
+	"github.com/sMARCHz/secretaria-bot/internal/config"
+	"github.com/sMARCHz/secretaria-bot/internal/logger"
+	"github.com/sMARCHz/secretaria-bot/internal/ports/inbound"
 )
 
 type LineHandler struct {

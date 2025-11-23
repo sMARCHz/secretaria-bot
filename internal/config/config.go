@@ -3,7 +3,7 @@ package config
 import (
 	"sync"
 
-	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
+	"github.com/sMARCHz/secretaria-bot/internal/logger"
 	"github.com/spf13/viper"
 )
 

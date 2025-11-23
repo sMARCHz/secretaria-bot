@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/domain"
-	"github.com/sMARCHz/go-secretaria-bot/internal/core/errors"
-	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
+	"github.com/sMARCHz/secretaria-bot/internal/core/domain"
+	"github.com/sMARCHz/secretaria-bot/internal/core/errors"
+	"github.com/sMARCHz/secretaria-bot/internal/logger"
 )
 
 var transactionCommandPattern = regexp.MustCompile(`^(\d+(?:\.\d+)?)?([a-zA-Z]+)$`)

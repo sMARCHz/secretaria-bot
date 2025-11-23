@@ -5,7 +5,7 @@ import (
 	"io"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sMARCHz/go-secretaria-bot/internal/ports/inbound"
+	"github.com/sMARCHz/secretaria-bot/internal/ports/inbound"
 )
 
 type testHandler struct {

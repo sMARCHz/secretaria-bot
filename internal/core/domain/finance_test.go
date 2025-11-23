@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/client/finance/pb"
+	"github.com/sMARCHz/secretaria-bot/internal/adapters/client/finance/pb"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

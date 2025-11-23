@@ -3,7 +3,7 @@ package domain
 import (
 	"time"
 
-	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/client/finance/pb"
+	"github.com/sMARCHz/secretaria-bot/internal/adapters/client/finance/pb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

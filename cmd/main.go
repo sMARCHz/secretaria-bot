@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/sMARCHz/go-secretaria-bot/internal/infrastructure"
-	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
+	"github.com/sMARCHz/secretaria-bot/internal/infrastructure"
+	"github.com/sMARCHz/secretaria-bot/internal/logger"
 )
 
 func main() {

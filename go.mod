@@ -1,4 +1,4 @@
-module github.com/sMARCHz/go-secretaria-bot
+module github.com/sMARCHz/secretaria-bot
 
 go 1.25.4
 
