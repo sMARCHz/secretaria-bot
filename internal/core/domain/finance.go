@@ -67,6 +67,13 @@ type GetOverviewStatementRequest struct {
 	To   time.Time `json:"to"`
 }
 
+func (g *GetOverviewStatementRequest) ToProto() *pb.OverviewStatementRequest {
+	return &pb.OverviewStatementRequest{
+		From: timestamppb.New(g.From),
+		To:   timestamppb.New(g.To),
+	}
+}
+
 type GetOverviewStatementResponse struct {
 	Revenue GetOverviewStatementSection `json:"revenue"`
 	Expense GetOverviewStatementSection `json:"expense"`
@@ -81,11 +88,4 @@ type GetOverviewStatementSection struct {
 type CategorizedEntry struct {
 	Category string  `json:"category"`
 	Amount   float64 `json:"amount"`
-}
-
-func (g *GetOverviewStatementRequest) ToProto() *pb.OverviewStatementRequest {
-	return &pb.OverviewStatementRequest{
-		From: timestamppb.New(g.From),
-		To:   timestamppb.New(g.To),
-	}
 }
