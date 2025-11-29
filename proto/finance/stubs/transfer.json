@@ -1,0 +1,15 @@
+{
+  "service": "FinanceService",
+  "method": "Transfer",
+  "input": {
+    "equals": {}
+  },
+  "output": {
+    "data": {
+      "status": 200,
+      "error": "",
+      "from_account_name": "debit1",
+      "balance": 200.0
+    }
+  }
+}

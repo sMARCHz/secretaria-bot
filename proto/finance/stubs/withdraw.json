@@ -1,0 +1,15 @@
+{
+  "service": "FinanceService",
+  "method": "Withdraw",
+  "input": {
+    "equals": {}
+  },
+  "output": {
+    "data": {
+      "status": 200,
+      "error": "",
+      "account_name": "debit1",
+      "balance": 200.0
+    }
+  }
+}

@@ -1,0 +1,31 @@
+all: false
+dir: '{{.InterfaceDir}}'
+filename: 'Mock{{.InterfaceName}}.go'
+force-file-write: true
+formatter: goimports
+generate: true
+include-auto-generated: true
+log-level: info
+structname: '{{.Mock}}{{.InterfaceName}}'
+pkgname: 'mocks'
+recursive: false
+require-template-schema-exists: true
+template: testify
+template-schema: '{{.Template}}.schema.json'
+packages:
+  github.com/sMARCHz/secretaria-bot/internal/ports/inbound:
+    config:
+      all: true
+      dir: "./test/mocks"
+  github.com/sMARCHz/secretaria-bot/internal/ports/client:
+    config:
+      all: true
+      dir: "./test/mocks"
+  github.com/sMARCHz/secretaria-bot/internal/adapters/client/finance/pb:
+    config:
+      dir: "./test/mocks"
+      filename: "{{.Mock}}GRPC{{.InterfaceName}}.go"
+      structname: "{{.Mock}}GRPC{{.InterfaceName}}"
+    interfaces:
+      FinanceServiceClient:
+

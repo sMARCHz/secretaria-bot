@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/sMARCHz/go-secretaria-bot/internal/adapters/driving/rest"
-	"github.com/sMARCHz/go-secretaria-bot/internal/logger"
+	"github.com/sMARCHz/secretaria-bot/internal/infrastructure"
+	"github.com/sMARCHz/secretaria-bot/internal/logger"
 )
 
 func main() {
-	sync := logger.InitProductionLogger()
+	sync := logger.InitLogger()
 	defer sync()
 
-	rest.Start()
+	infrastructure.StartHTTPServer()
 }
