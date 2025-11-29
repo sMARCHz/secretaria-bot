@@ -75,9 +75,9 @@ func (g *GetOverviewStatementRequest) ToProto() *pb.OverviewStatementRequest {
 }
 
 type GetOverviewStatementResponse struct {
-	Revenue GetOverviewStatementSection `json:"revenue"`
-	Expense GetOverviewStatementSection `json:"expense"`
-	Profit  float64                     `json:"profit"`
+	Revenue *GetOverviewStatementSection `json:"revenue"`
+	Expense *GetOverviewStatementSection `json:"expense"`
+	Profit  float64                      `json:"profit"`
 }
 
 type GetOverviewStatementSection struct {

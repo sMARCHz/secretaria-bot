@@ -15,13 +15,13 @@ type LineHandler struct {
 	client  *linebot.Client
 }
 
-func NewLineHandler(service inbound.BotService) LineHandler {
+func NewLineHandler(service inbound.BotService) *LineHandler {
 	lineCfg := config.Get().Line
 	client, err := linebot.New(lineCfg.ChannelSecret, lineCfg.ChannelToken)
 	if err != nil {
 		logger.Fatal("cannot create linebot client: ", err)
 	}
-	return LineHandler{
+	return &LineHandler{
 		service: service,
 		client:  client,
 	}

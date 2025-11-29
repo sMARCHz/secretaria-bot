@@ -9,5 +9,6 @@ var commandPrefixSet = map[string]struct{}{
 }
 
 const (
-	invalidCommandMsg = "Invalid command"
+	invalidCommandMsg  = "Invalid command"
+	commandNotFoundMsg = "Command not found"
 )

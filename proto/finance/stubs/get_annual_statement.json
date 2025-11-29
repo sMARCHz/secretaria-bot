@@ -8,9 +8,33 @@
     "data": {
       "status": 200,
       "error": "",
-      "revenue": { "total": 120000.0, "entries": [] },
-      "expense": { "total": 45000.0, "entries": [] },
-      "profit": 75000.0
+      "revenue": {
+        "total": 8000.0,
+        "entries": [
+          {
+            "category": "salary",
+            "amount": 5000.0
+          },
+          {
+            "category": "miscellaneous",
+            "amount": 3000.0
+          }
+        ]
+      },
+      "expense": {
+        "total": 3000.0,
+        "entries": [
+          {
+            "category": "shopping",
+            "amount": 2500.0
+          },
+          {
+            "category": "snacks",
+            "amount": 500.0
+          }
+        ]
+      },
+      "profit": 5000.0
     }
   }
 }

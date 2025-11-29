@@ -11,6 +11,7 @@ func InitLogger() func() error {
 	return l.Sync
 }
 
+// TODO: Make log directory to env
 func newZapLogger() *zap.Logger {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.TimeKey = "timestamp"

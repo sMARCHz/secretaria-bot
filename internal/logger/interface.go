@@ -1,6 +1,10 @@
 package logger
 
-var logger Logger
+// default to a no-op logger to avoid nil pointer panics when tests
+// (or other code) call logger helpers without initializing a concrete
+// logger via InitLogger(). Tests can still initialize a real logger by
+// calling InitLogger() or replace it with SetLogger.
+var logger Logger = &noopLogger{}
 
 type Logger interface {
 	Debug(args ...interface{})

@@ -3,10 +3,11 @@ package finance
 import (
 	"context"
 
+	"github.com/pkg/errors"
 	"github.com/sMARCHz/secretaria-bot/internal/adapters/client/finance/pb"
 	"github.com/sMARCHz/secretaria-bot/internal/config"
 	"github.com/sMARCHz/secretaria-bot/internal/core/domain"
-	"github.com/sMARCHz/secretaria-bot/internal/core/errors"
+	apperrors "github.com/sMARCHz/secretaria-bot/internal/core/errors"
 	"github.com/sMARCHz/secretaria-bot/internal/logger"
 	"github.com/sMARCHz/secretaria-bot/internal/ports/client"
 	"google.golang.org/grpc"
@@ -29,11 +30,12 @@ func NewFinanceServiceClient() client.FinanceServiceClient {
 	}
 }
 
-func (f *financeServiceClient) Withdraw(req *domain.TransactionRequest) (*domain.TransactionResponse, *errors.AppError) {
+func (f *financeServiceClient) Withdraw(req *domain.TransactionRequest) (*domain.TransactionResponse, *apperrors.AppError) {
 	res, err := f.client.Withdraw(context.Background(), req.ToProto())
 	if err != nil {
-		logger.Error("cannot withdraw money: ", err)
-		return nil, errors.BadGatewayError(err.Error())
+		err = errors.Wrap(err, "cannot withdraw money")
+		logger.Error(err)
+		return nil, apperrors.BadGatewayError(err.Error())
 	}
 	return &domain.TransactionResponse{
 		Account: res.AccountName,
@@ -41,11 +43,12 @@ func (f *financeServiceClient) Withdraw(req *domain.TransactionRequest) (*domain
 	}, nil
 }
 
-func (f *financeServiceClient) Deposit(req *domain.TransactionRequest) (*domain.TransactionResponse, *errors.AppError) {
+func (f *financeServiceClient) Deposit(req *domain.TransactionRequest) (*domain.TransactionResponse, *apperrors.AppError) {
 	res, err := f.client.Deposit(context.Background(), req.ToProto())
 	if err != nil {
-		logger.Error("cannot deposit money: ", err)
-		return nil, errors.BadGatewayError(err.Error())
+		err = errors.Wrap(err, "cannot deposit money")
+		logger.Error(err)
+		return nil, apperrors.BadGatewayError(err.Error())
 	}
 	return &domain.TransactionResponse{
 		Account: res.AccountName,
@@ -53,11 +56,12 @@ func (f *financeServiceClient) Deposit(req *domain.TransactionRequest) (*domain.
 	}, nil
 }
 
-func (f *financeServiceClient) Transfer(req *domain.TransferRequest) (*domain.TransferResponse, *errors.AppError) {
+func (f *financeServiceClient) Transfer(req *domain.TransferRequest) (*domain.TransferResponse, *apperrors.AppError) {
 	res, err := f.client.Transfer(context.Background(), req.ToProto())
 	if err != nil {
-		logger.Error("cannot transfer money: ", err)
-		return nil, errors.BadGatewayError(err.Error())
+		err = errors.Wrap(err, "cannot transfer money")
+		logger.Error(err)
+		return nil, apperrors.BadGatewayError(err.Error())
 	}
 	return &domain.TransferResponse{
 		FromAccount: res.FromAccountName,
@@ -65,11 +69,12 @@ func (f *financeServiceClient) Transfer(req *domain.TransferRequest) (*domain.Tr
 	}, nil
 }
 
-func (f *financeServiceClient) GetBalance() (*domain.GetBalanceResponse, *errors.AppError) {
+func (f *financeServiceClient) GetBalance() (*domain.GetBalanceResponse, *apperrors.AppError) {
 	res, err := f.client.GetBalance(context.Background(), &emptypb.Empty{})
 	if err != nil {
-		logger.Error("cannot get balance: ", err)
-		return nil, errors.BadGatewayError(err.Error())
+		err = errors.Wrap(err, "cannot get balance")
+		logger.Error(err)
+		return nil, apperrors.BadGatewayError(err.Error())
 	}
 	accounts := make([]domain.AccountBalance, len(res.Accounts))
 	for i, v := range res.Accounts {
@@ -80,51 +85,67 @@ func (f *financeServiceClient) GetBalance() (*domain.GetBalanceResponse, *errors
 	}, nil
 }
 
-func (f *financeServiceClient) GetOverviewStatement(req *domain.GetOverviewStatementRequest) (*domain.GetOverviewStatementResponse, *errors.AppError) {
+func (f *financeServiceClient) GetOverviewStatement(req *domain.GetOverviewStatementRequest) (*domain.GetOverviewStatementResponse, *apperrors.AppError) {
 	res, err := f.client.GetOverviewStatement(context.Background(), req.ToProto())
 	if err != nil {
-		logger.Error("cannot get overview statement: ", err)
-		return nil, errors.BadGatewayError(err.Error())
+		err = errors.Wrap(err, "cannot get overview statement")
+		logger.Error(err)
+		return nil, apperrors.BadGatewayError(err.Error())
 	}
 	return f.toGetOverviewStatementResponse(res), nil
 }
 
-func (f *financeServiceClient) GetOverviewMonthlyStatement() (*domain.GetOverviewStatementResponse, *errors.AppError) {
+func (f *financeServiceClient) GetOverviewMonthlyStatement() (*domain.GetOverviewStatementResponse, *apperrors.AppError) {
 	res, err := f.client.GetOverviewMonthlyStatement(context.Background(), &emptypb.Empty{})
 	if err != nil {
-		logger.Error("cannot get monthly overview statement: ", err)
-		return nil, errors.BadGatewayError(err.Error())
+		err = errors.Wrap(err, "cannot get monthly overview statement")
+		logger.Error(err)
+		return nil, apperrors.BadGatewayError(err.Error())
 	}
 	return f.toGetOverviewStatementResponse(res), nil
 }
 
-func (f *financeServiceClient) GetOverviewAnnualStatement() (*domain.GetOverviewStatementResponse, *errors.AppError) {
+func (f *financeServiceClient) GetOverviewAnnualStatement() (*domain.GetOverviewStatementResponse, *apperrors.AppError) {
 	res, err := f.client.GetOverviewAnnualStatement(context.Background(), &emptypb.Empty{})
 	if err != nil {
-		logger.Error("cannot get annual overview statement: ", err)
-		return nil, errors.BadGatewayError(err.Error())
+		err = errors.Wrap(err, "cannot get annual overview statement")
+		logger.Error(err)
+		return nil, apperrors.BadGatewayError(err.Error())
 	}
 	return f.toGetOverviewStatementResponse(res), nil
 }
 
 func (*financeServiceClient) toGetOverviewStatementResponse(o *pb.OverviewStatementResponse) *domain.GetOverviewStatementResponse {
-	revenueEntries := make([]domain.CategorizedEntry, len(o.Revenue.Entries))
-	expenseEntries := make([]domain.CategorizedEntry, len(o.Expense.Entries))
-	for i, v := range o.Revenue.Entries {
-		revenueEntries[i] = domain.CategorizedEntry{Category: v.Category, Amount: v.Amount}
+	if o == nil {
+		return &domain.GetOverviewStatementResponse{}
 	}
-	for i, v := range o.Expense.Entries {
-		expenseEntries[i] = domain.CategorizedEntry{Category: v.Category, Amount: v.Amount}
+
+	var revenue *domain.GetOverviewStatementSection
+	if o.Revenue != nil {
+		entries := make([]domain.CategorizedEntry, len(o.Revenue.Entries))
+		for i, v := range o.Revenue.Entries {
+			entries[i] = domain.CategorizedEntry{Category: v.Category, Amount: v.Amount}
+		}
+		revenue = &domain.GetOverviewStatementSection{
+			Entries: entries,
+			Total:   o.Revenue.GetTotal(),
+		}
+	}
+
+	var expense *domain.GetOverviewStatementSection
+	if o.Expense != nil {
+		entries := make([]domain.CategorizedEntry, len(o.Expense.Entries))
+		for i, v := range o.Expense.Entries {
+			entries[i] = domain.CategorizedEntry{Category: v.Category, Amount: v.Amount}
+		}
+		expense = &domain.GetOverviewStatementSection{
+			Entries: entries,
+			Total:   o.Expense.GetTotal(),
+		}
 	}
 	return &domain.GetOverviewStatementResponse{
-		Revenue: domain.GetOverviewStatementSection{
-			Total:   o.Revenue.Total,
-			Entries: revenueEntries,
-		},
-		Expense: domain.GetOverviewStatementSection{
-			Total:   o.Expense.Total,
-			Entries: expenseEntries,
-		},
-		Profit: o.Profit,
+		Revenue: revenue,
+		Expense: expense,
+		Profit:  o.Profit,
 	}
 }
