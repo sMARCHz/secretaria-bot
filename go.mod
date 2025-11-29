@@ -4,7 +4,7 @@ go 1.25.4
 
 require (
 	github.com/gin-gonic/gin v1.11.0
-	github.com/line/line-bot-sdk-go/v7 v7.21.0
+	github.com/line/line-bot-sdk-go/v8 v8.18.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.11.1

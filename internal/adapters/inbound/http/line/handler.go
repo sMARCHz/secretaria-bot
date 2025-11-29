@@ -1,10 +1,11 @@
 package line
 
 import (
+	"encoding/base64"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/line/line-bot-sdk-go/v7/linebot"
+	"github.com/line/line-bot-sdk-go/v8/linebot"
 	"github.com/sMARCHz/secretaria-bot/internal/config"
 	"github.com/sMARCHz/secretaria-bot/internal/logger"
 	"github.com/sMARCHz/secretaria-bot/internal/ports/inbound"
@@ -28,6 +29,14 @@ func NewLineHandler(service inbound.BotService) *LineHandler {
 }
 
 func (b *LineHandler) HandleLineMessage(ctx *gin.Context) {
+	signature := ctx.Request.Header.Get("x-line-signature")
+	logger.Info("Signature: ", signature)
+	decoded, err := base64.StdEncoding.DecodeString(signature)
+	if err != nil {
+		logger.Error("here is the reason", err)
+	}
+	logger.Info("Decoded signature: ", decoded)
+	logger.Info(config.Get().Line.ChannelSecret)
 	events, err := b.client.ParseRequest(ctx.Request)
 	if err != nil {
 		code := http.StatusInternalServerError
