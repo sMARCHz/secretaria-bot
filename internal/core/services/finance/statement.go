@@ -28,7 +28,7 @@ func (h *Handler) getStatement(tokenizedMsg []string) (string, *errors.AppError)
 	if err != nil {
 		return "", err
 	}
-	return printStatement(res, statementType)
+	return printStatement(res, statementType), nil
 }
 
 // TODO: Refactor
@@ -62,7 +62,7 @@ func (h *Handler) callSelectedRangeStatement(from, to string) (*domain.GetOvervi
 	return h.client.GetOverviewStatement(req)
 }
 
-func printStatement(res *domain.GetOverviewStatementResponse, statementType string) (string, *errors.AppError) {
+func printStatement(res *domain.GetOverviewStatementResponse, statementType string) string {
 	if res.Revenue == nil {
 		res.Revenue = &domain.GetOverviewStatementSection{}
 	}
@@ -83,5 +83,5 @@ func printStatement(res *domain.GetOverviewStatementResponse, statementType stri
 	}
 	sb.WriteString("\n")
 	sb.WriteString(fmt.Sprintf("Profit: ฿%v", res.Profit))
-	return sb.String(), nil
+	return sb.String()
 }

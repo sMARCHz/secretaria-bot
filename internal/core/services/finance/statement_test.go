@@ -311,26 +311,64 @@ func TestCallSelectedRangeStatement_Error(t *testing.T) {
 }
 
 func TestPrintStatement(t *testing.T) {
-	res := &domain.GetOverviewStatementResponse{
-		Revenue: &domain.GetOverviewStatementSection{
-			Total: 30000,
-			Entries: []domain.CategorizedEntry{
-				{Category: "Salary", Amount: 30000},
+	testcases := []struct {
+		it           string
+		statementRes *domain.GetOverviewStatementResponse
+		expected     string
+	}{
+		{
+			it: "returns string statement",
+			statementRes: &domain.GetOverviewStatementResponse{
+				Revenue: &domain.GetOverviewStatementSection{
+					Total: 30000,
+					Entries: []domain.CategorizedEntry{
+						{Category: "Salary", Amount: 30000},
+					},
+				},
+				Expense: &domain.GetOverviewStatementSection{
+					Total: 20000,
+					Entries: []domain.CategorizedEntry{
+						{Category: "Food", Amount: 8000},
+						{Category: "Shopping", Amount: 12000},
+					},
+				},
+				Profit: 10000,
 			},
+			expected: "Income Statement\n================\nRevenue: ฿30000\nSalary = ฿30000\n\nExpense: ฿20000\nFood = ฿8000\nShopping = ฿12000\n\nProfit: ฿10000",
 		},
-		Expense: &domain.GetOverviewStatementSection{
-			Total: 20000,
-			Entries: []domain.CategorizedEntry{
-				{Category: "Food", Amount: 8000},
-				{Category: "Shopping", Amount: 12000},
+		{
+			it: "returns string statement with revenue=0 and no entries when the revenue object isn't in the response",
+			statementRes: &domain.GetOverviewStatementResponse{
+				Expense: &domain.GetOverviewStatementSection{
+					Total: 20000,
+					Entries: []domain.CategorizedEntry{
+						{Category: "Food", Amount: 8000},
+						{Category: "Shopping", Amount: 12000},
+					},
+				},
+				Profit: -20000,
 			},
+			expected: "Income Statement\n================\nRevenue: ฿0\n\nExpense: ฿20000\nFood = ฿8000\nShopping = ฿12000\n\nProfit: ฿-20000",
 		},
-		Profit: 10000,
+		{
+			it: "returns string statement with expense=0 and no entries when the expense object isn't in the response",
+			statementRes: &domain.GetOverviewStatementResponse{
+				Revenue: &domain.GetOverviewStatementSection{
+					Total: 30000,
+					Entries: []domain.CategorizedEntry{
+						{Category: "Salary", Amount: 30000},
+					},
+				},
+				Profit: 30000,
+			},
+			expected: "Income Statement\n================\nRevenue: ฿30000\nSalary = ฿30000\n\nExpense: ฿0\n\nProfit: ฿30000",
+		},
 	}
 
-	msg, err := printStatement(res, "Income")
-
-	expectedMsg := "Income Statement\n================\nRevenue: ฿30000\nSalary = ฿30000\n\nExpense: ฿20000\nFood = ฿8000\nShopping = ฿12000\n\nProfit: ฿10000"
-	assert.Nil(t, err)
-	assert.Equal(t, expectedMsg, msg)
+	for _, tc := range testcases {
+		t.Run(tc.it, func(t *testing.T) {
+			msg := printStatement(tc.statementRes, "Income")
+			assert.Equal(t, tc.expected, msg)
+		})
+	}
 }
